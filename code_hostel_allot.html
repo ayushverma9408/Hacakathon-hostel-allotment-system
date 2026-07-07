@@ -5,7 +5,7 @@
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
 <title>AllotmentPro | Hostel Allocation Tool</title>
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&amp;family=Inter:wght@400;500;600&amp;family=JetBrains+Mono:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
 <!-- Load Tailwind Config -->
 <script id="tailwind-config">
@@ -80,16 +80,16 @@
             },
             "fontFamily": {
                     "body-sm": ["Inter"],
-                    "label-md": ["Inter"],
+                    "label-md": ["JetBrains Mono"],
                     "body-lg": ["Inter"],
                     "headline-lg": ["Plus Jakarta Sans"],
                     "headline-md": ["Plus Jakarta Sans"],
                     "headline-lg-mobile": ["Plus Jakarta Sans"],
-                    "mono-label": ["Inter"]
+                    "mono-label": ["JetBrains Mono"]
             },
             "fontSize": {
                     "body-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
-                    "label-md": ["13px", {"lineHeight": "18px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                    "label-md": ["13px", {"lineHeight": "18px", "letterSpacing": "0.02em", "fontWeight": "600"}],
                     "body-lg": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
                     "headline-lg": ["30px", {"lineHeight": "38px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
                     "headline-md": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
@@ -119,6 +119,10 @@
         body {
             min-height: max(884px, 100dvh);
         }
+        .tech-font {
+            font-family: 'JetBrains Mono', monospace;
+            letter-spacing: -0.01em;
+        }
     </style>
 </head>
 <body class="bg-background text-on-background font-body-lg antialiased">
@@ -127,7 +131,7 @@
 <div class="flex items-center justify-between px-lg h-16 w-full max-w-7xl mx-auto">
 <div class="flex items-center gap-xs">
 <span class="material-symbols-outlined text-primary" data-icon="apartment">apartment</span>
-<h1 class="font-headline-md text-headline-md text-primary font-bold">AllotmentPro</h1>
+<h1 class="font-headline-md text-headline-md text-primary font-bold tech-font tracking-tight">AllotmentPro</h1>
 </div>
 <div class="w-10 h-10 rounded-full overflow-hidden border border-outline-variant ring-2 ring-primary/20">
 <img class="w-full h-full object-cover" data-alt="User avatar" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDu1ZKzRJSVDQu0vfB7RCzTPlNkrWPdM8zXPlhqT-ODwrLdptZdah7gVHXumipVPZE8mIrpKW9RYM6TrmTt5ANTKl9SGjlu3B4yjmJGnhW9fApVBVioIBgBmLMBt-c_OWy49bDoTztxY0J0ltaoR90LsIX9flCJUVJeE3D8TjHcW1dNPi-ib0Uaa7hk4B_HaNRpOHhamkDYqYhvsuc7j41ydQqWtiv7Cu2SzGdH4EWCiLoSUH78qhKpWZsZcy-NKYbBu3oYx6ayRvog"/>
@@ -137,7 +141,7 @@
 <main class="max-w-xl mx-auto px-container-margin py-lg space-y-lg pb-32">
 <!-- Welcome Hero -->
 <section class="space-y-xs">
-<h2 class="font-headline-lg-mobile text-headline-lg-mobile text-on-surface">Smart Allotment</h2>
+<h2 class="font-headline-lg-mobile text-headline-lg-mobile text-on-surface tech-font">Smart Allotment</h2>
 <p class="text-on-surface-variant font-body-sm">Upload your data to automatically distribute participants across available hostel rooms based on gender and capacity.</p>
 </section>
 <!-- Upload Section -->
@@ -149,7 +153,7 @@
 <span class="material-symbols-outlined text-primary" data-icon="bed">bed</span>
 </div>
 <div>
-<h3 class="font-headline-md text-on-surface text-base">Hostel Availability</h3>
+<h3 class="font-headline-md text-on-surface text-base tech-font">Hostel Availability</h3>
 <p class="text-body-sm text-on-surface-variant mt-1">Upload CSV/Excel room mapping</p>
 </div>
 <button class="bg-surface-container-highest text-primary font-label-md px-lg py-sm rounded-lg flex items-center gap-xs active:scale-95 transition-transform">
@@ -166,7 +170,7 @@
 <span class="material-symbols-outlined text-primary" data-icon="group">group</span>
 </div>
 <div>
-<h3 class="font-headline-md text-on-surface text-base">Participant List</h3>
+<h3 class="font-headline-md text-on-surface text-base tech-font">Participant List</h3>
 <p class="text-body-sm text-on-surface-variant mt-1">Names and gender requirements</p>
 </div>
 <button class="bg-surface-container-highest text-primary font-label-md px-lg py-sm rounded-lg flex items-center gap-xs active:scale-95 transition-transform">
@@ -178,15 +182,15 @@
 </div>
 </div>
 <!-- Primary CTA -->
-<button class="w-full bg-primary-container text-on-primary-container h-14 rounded-xl font-headline-md shadow-lg shadow-primary-container/20 active:scale-[0.98] transition-all flex items-center justify-center gap-md" id="runBtn">
+<button class="w-full bg-primary-container text-on-primary-container h-14 rounded-xl font-headline-md tech-font shadow-lg shadow-primary-container/20 active:scale-[0.98] transition-all flex items-center justify-center gap-md" id="runBtn">
 <span class="material-symbols-outlined" data-icon="bolt">bolt</span>
             Run Allocation
         </button>
 <!-- Allocation Progress (Hidden by default) -->
 <div class="hidden space-y-sm" id="progressArea">
 <div class="flex justify-between items-end">
-<span class="font-label-md text-primary">Processing Data...</span>
-<span class="text-body-sm text-on-surface-variant" id="progressText">0%</span>
+<span class="font-label-md text-primary tech-font">Processing Data...</span>
+<span class="text-body-sm text-on-surface-variant font-mono-label" id="progressText">0%</span>
 </div>
 <div class="h-2 w-full bg-surface-container-high rounded-full overflow-hidden">
 <div class="h-full bg-primary transition-all duration-300" id="progressBar" style="width: 0%"></div>
@@ -200,83 +204,83 @@
 <span class="material-symbols-outlined text-on-secondary-container" data-icon="task_alt">task_alt</span>
 </div>
 <div>
-<h4 class="font-label-md text-on-surface">Allocation Complete</h4>
+<h4 class="font-label-md text-on-surface tech-font">Allocation Complete</h4>
 <p class="text-body-sm text-on-surface-variant">128 participants processed</p>
 </div>
 </div>
 <div class="grid grid-cols-2 gap-md">
 <div class="p-md bg-surface-container-highest/30 rounded-lg border border-outline-variant">
-<p class="text-on-surface-variant text-body-sm">Allotted</p>
-<p class="text-headline-md font-bold text-secondary">124</p>
+<p class="text-on-surface-variant text-body-sm font-label-md uppercase text-[10px] tracking-wider">Allotted</p>
+<p class="text-headline-md font-bold text-secondary tech-font">124</p>
 </div>
 <div class="p-md bg-surface-container-highest/30 rounded-lg border border-outline-variant">
-<p class="text-on-surface-variant text-body-sm">Waitlist</p>
-<p class="text-headline-md font-bold text-error">4</p>
+<p class="text-on-surface-variant text-body-sm font-label-md uppercase text-[10px] tracking-wider">Waitlist</p>
+<p class="text-headline-md font-bold text-error tech-font">4</p>
 </div>
 </div>
 </div>
 <!-- Results Table Mobile -->
 <div class="overflow-hidden border border-outline-variant rounded-xl bg-surface-container-lowest">
 <div class="bg-surface-container-low px-md py-sm border-b border-outline-variant flex justify-between items-center">
-<h3 class="font-label-md text-on-surface uppercase tracking-wider">Allotment Logs</h3>
-<span class="text-body-sm text-primary font-semibold">Latest Run</span>
+<h3 class="font-label-md text-on-surface uppercase tracking-widest text-[11px] tech-font">Allotment Logs</h3>
+<span class="text-body-sm text-primary font-semibold tech-font text-[11px]">Latest Run</span>
 </div>
 <div class="overflow-x-auto">
 <table class="w-full text-left border-collapse">
 <thead>
 <tr class="bg-surface-container-low/50 border-b border-outline-variant">
-<th class="px-md py-sm text-body-sm font-bold text-on-surface-variant">Name</th>
-<th class="px-md py-sm text-body-sm font-bold text-on-surface-variant">Status</th>
-<th class="px-md py-sm text-body-sm font-bold text-on-surface-variant">Room</th>
+<th class="px-md py-sm text-body-sm font-bold text-on-surface-variant font-label-md uppercase text-[10px]">Name</th>
+<th class="px-md py-sm text-body-sm font-bold text-on-surface-variant font-label-md uppercase text-[10px]">Status</th>
+<th class="px-md py-sm text-body-sm font-bold text-on-surface-variant font-label-md uppercase text-[10px]">Room</th>
 </tr>
 </thead>
 <tbody class="divide-y divide-outline-variant/30">
 <tr>
 <td class="px-md py-md">
-<p class="font-label-md text-on-surface">Arjun Sharma</p>
-<p class="text-mono-label text-on-surface-variant">Male</p>
+<p class="font-label-md text-on-surface tech-font">Arjun Sharma</p>
+<p class="text-mono-label text-on-surface-variant uppercase text-[10px]">Male</p>
 </td>
 <td class="px-md py-md">
-<span class="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-bold bg-secondary-container text-on-secondary-container">ALLOTTED</span>
+<span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-secondary-container text-on-secondary-container font-label-md">ALLOTTED</span>
 </td>
-<td class="px-md py-md font-mono-label text-on-surface">Block A-204</td>
+<td class="px-md py-md font-mono-label text-on-surface text-[12px]">Block A-204</td>
 </tr>
 <tr>
 <td class="px-md py-md">
-<p class="font-label-md text-on-surface">Priya Patel</p>
-<p class="text-mono-label text-on-surface-variant">Female</p>
+<p class="font-label-md text-on-surface tech-font">Priya Patel</p>
+<p class="text-mono-label text-on-surface-variant uppercase text-[10px]">Female</p>
 </td>
 <td class="px-md py-md">
-<span class="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-bold bg-secondary-container text-on-secondary-container">ALLOTTED</span>
+<span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-secondary-container text-on-secondary-container font-label-md">ALLOTTED</span>
 </td>
-<td class="px-md py-md font-mono-label text-on-surface">Block C-102</td>
+<td class="px-md py-md font-mono-label text-on-surface text-[12px]">Block C-102</td>
 </tr>
 <tr>
 <td class="px-md py-md">
-<p class="font-label-md text-on-surface">Kevin Miller</p>
-<p class="text-mono-label text-on-surface-variant">Male</p>
+<p class="font-label-md text-on-surface tech-font">Kevin Miller</p>
+<p class="text-mono-label text-on-surface-variant uppercase text-[10px]">Male</p>
 </td>
 <td class="px-md py-md">
-<span class="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-bold bg-error-container text-on-error-container">WAITLIST</span>
+<span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-error-container text-on-error-container font-label-md">WAITLIST</span>
 </td>
-<td class="px-md py-md font-mono-label text-on-surface-variant">N/A</td>
+<td class="px-md py-md font-mono-label text-on-surface-variant text-[12px]">N/A</td>
 </tr>
 <tr>
 <td class="px-md py-md">
-<p class="font-label-md text-on-surface">Sanya Verma</p>
-<p class="text-mono-label text-on-surface-variant">Female</p>
+<p class="font-label-md text-on-surface tech-font">Sanya Verma</p>
+<p class="text-mono-label text-on-surface-variant uppercase text-[10px]">Female</p>
 </td>
 <td class="px-md py-md">
-<span class="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-bold bg-secondary-container text-on-secondary-container">ALLOTTED</span>
+<span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-secondary-container text-on-secondary-container font-label-md">ALLOTTED</span>
 </td>
-<td class="px-md py-md font-mono-label text-on-surface">Block B-405</td>
+<td class="px-md py-md font-mono-label text-on-surface text-[12px]">Block B-405</td>
 </tr>
 </tbody>
 </table>
 </div>
 </div>
 <!-- Download Button -->
-<button class="w-full bg-secondary-container text-on-secondary-container h-14 rounded-xl font-headline-md shadow-md active:scale-[0.98] transition-all flex items-center justify-center gap-md">
+<button class="w-full bg-secondary-container text-on-secondary-container h-14 rounded-xl font-headline-md tech-font shadow-md active:scale-[0.98] transition-all flex items-center justify-center gap-md">
 <span class="material-symbols-outlined" data-icon="download">download</span>
                 Download Results
             </button>
@@ -286,19 +290,19 @@
 <nav class="lg:hidden fixed bottom-0 left-0 w-full flex justify-around items-center px-container-margin py-xs bg-surface-container-lowest border-t border-outline-variant z-50">
 <a class="flex flex-col items-center justify-center bg-primary-container text-on-primary-container rounded-full px-4 py-1" href="#">
 <span class="material-symbols-outlined" data-icon="home">home</span>
-<span class="text-label-md font-label-md">Home</span>
+<span class="text-label-md font-label-md tech-font text-[10px]">Home</span>
 </a>
 <a class="flex flex-col items-center justify-center text-on-surface-variant hover:bg-surface-container-high transition-colors p-2 rounded-lg" href="#">
 <span class="material-symbols-outlined" data-icon="cloud_upload">cloud_upload</span>
-<span class="text-label-md font-label-md">Upload</span>
+<span class="text-label-md font-label-md tech-font text-[10px]">Upload</span>
 </a>
 <a class="flex flex-col items-center justify-center text-on-surface-variant hover:bg-surface-container-high transition-colors p-2 rounded-lg" href="#">
 <span class="material-symbols-outlined" data-icon="list_alt">list_alt</span>
-<span class="text-label-md font-label-md">Results</span>
+<span class="text-label-md font-label-md tech-font text-[10px]">Results</span>
 </a>
 <a class="flex flex-col items-center justify-center text-on-surface-variant hover:bg-surface-container-high transition-colors p-2 rounded-lg" href="#">
 <span class="material-symbols-outlined" data-icon="settings">settings</span>
-<span class="text-label-md font-label-md">Settings</span>
+<span class="text-label-md font-label-md tech-font text-[10px]">Settings</span>
 </a>
 </nav>
 <script>
@@ -312,7 +316,7 @@
         runBtn.addEventListener('click', () => {
             // UI Transition
             runBtn.disabled = true;
-            runBtn.innerHTML = `<span class="material-symbols-outlined animate-spin" data-icon="sync">sync</span> Processing...`;
+            runBtn.innerHTML = `<span class="material-symbols-outlined animate-spin" data-icon="sync">sync</span> <span class="tech-font">Processing...</span>`;
             progressArea.classList.remove('hidden');
             
             let progress = 0;
@@ -349,10 +353,10 @@
                             <span class="material-symbols-outlined text-secondary" data-icon="check_circle">check_circle</span>
                         </div>
                         <div>
-                            <h3 class="font-headline-md text-on-surface text-base">File Attached</h3>
-                            <p class="text-body-sm text-secondary font-bold mt-1">${fileName}</p>
+                            <h3 class="font-headline-md text-on-surface text-base tech-font">File Attached</h3>
+                            <p class="text-body-sm text-secondary font-bold mt-1 tech-font">${fileName}</p>
                         </div>
-                        <button class="text-error font-label-md flex items-center gap-xs" onclick="location.reload()">
+                        <button class="text-error font-label-md flex items-center gap-xs tech-font text-[11px]" onclick="location.reload()">
                             Remove
                         </button>
                     `;
