@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <title>AllotmentPro | Hostel Allocation Tool</title>
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+  
+  <script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          "colors": {
+            "error": "#ba1a1a",
+            "primary-fixed-dim": "#c3c0ff",
+            "on-tertiary": "#ffffff",
+            "secondary-fixed": "#7ffc97",
+            "tertiary-container": "#885500",
+            "surface-variant": "#464555",
+            "on-primary-container": "#dad7ff",
+            "on-secondary": "#ffffff",
+            "secondary-fixed-dim": "#62df7d",
+            "on-secondary-fixed-variant": "#005320",
+            "surface-container": "#1e242d",
+            "inverse-surface": "#f8f9ff",
+            "surface-bright": "#3b434f",
+            "surface-container-low": "#1a1c22",
+            "primary-container": "#4f46e5",
+            "secondary": "#62df7d",
+            "inverse-primary": "#3525cd",
+            "on-error-container": "#93000a",
+            "tertiary-fixed-dim": "#ffb95f",
+            "on-tertiary-fixed-variant": "#653e00",
+            "on-error": "#ffffff",
+            "background": "#121c2a",
+            "surface-dim": "#0e141c",
+            "primary": "#c3c0ff",
+            "on-primary": "#0f0069",
+            "on-surface": "#eaf1ff",
+            "on-secondary-fixed": "#002109",
+            "on-surface-variant": "#c7c4d8",
+            "on-background": "#eaf1ff",
+            "surface-container-high": "#27313f",
+            "on-tertiary-container": "#ffd4a4",
+            "surface-container-highest": "#364150",
+            "surface-container-lowest": "#0b121a",
+            "on-tertiary-fixed": "#2a1700",
+            "tertiary-fixed": "#ffddb8",
+            "tertiary": "#ffb95f",
+            "primary-fixed": "#e2dfff",
+            "secondary-container": "#005320",
+            "on-primary-fixed-variant": "#3323cc",
+            "on-primary-fixed": "#0f0069",
+            "inverse-on-surface": "#121c2a",
+            "error-container": "#93000a",
+            "on-secondary-container": "#7cf994",
+            "surface": "#121c2a",
+            "outline-variant": "#464555",
+            "surface-tint": "#c3c0ff",
+            "outline": "#8e9099"
+          },
+          "borderRadius": {
+            "DEFAULT": "0.25rem",
+            "lg": "0.5rem",
+            "xl": "0.75rem",
+            "full": "9999px"
+          },
+          "spacing": {
+            "lg": "24px",
+            "md": "16px",
+            "base": "4px",
+            "xs": "8px",
+            "container-margin": "16px",
+            "xl": "32px",
+            "gutter": "16px",
+            "sm": "12px"
+          },
+          "fontFamily": {
+            "body-sm": ["Inter"],
+            "label-md": ["JetBrains Mono"],
+            "body-lg": ["Inter"],
+            "headline-lg": ["Plus Jakarta Sans"],
+            "headline-md": ["Plus Jakarta Sans"],
+            "headline-lg-mobile": ["Plus Jakarta Sans"],
+            "mono-label": ["JetBrains Mono"]
+          },
+          "fontSize": {
+            "body-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+            "label-md": ["13px", {"lineHeight": "18px", "letterSpacing": "0.02em", "fontWeight": "600"}],
+            "body-lg": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+            "headline-lg": ["30px", {"lineHeight": "38px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+            "headline-md": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+            "headline-lg-mobile": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+            "mono-label": ["12px", {"lineHeight": "16px", "fontWeight": "500"}]
+          }
+        },
+      },
+    }
+  </script>
+
+  <style>
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    }
+    .file-drop-zone.active {
+      @apply border-primary bg-primary-container/20;
+    }
+    .shimmer {
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.05), transparent);
+      background-size: 200% 100%;
+      animation: shimmer 1.5s infinite;
+    }
+    @keyframes shimmer {
+      0% { background-position: -200% 0; }
+      100% { background-position: 200% 0; }
+    }
+    body {
+      min-height: max(884px, 100dvh);
+    }
+    .tech-font {
+      font-family: 'JetBrains Mono', monospace;
+      letter-spacing: -0.01em;
+    }
+    .alert {
+      @apply px-md py-sm rounded-lg border text-body-sm;
+    }
+    .alert-error {
+      @apply bg-error-container/20 border-error text-error;
+    }
+    .alert-success {
+      @apply bg-secondary-container/20 border-secondary text-secondary;
+    }
+    .alert-warning {
+      @apply bg-tertiary-container/20 border-tertiary text-on-tertiary;
+    }
+  </style>
+</head>
+
+<body class="bg-background text-on-background font-body-lg antialiased">
+<!-- TopAppBar -->
+<header class="w-full top-0 sticky z-50 bg-surface-container-lowest border-b border-outline-variant">
+  <div class="flex items-center justify-between px-lg h-16 w-full max-w-7xl mx-auto">
+    <div class="flex items-center gap-xs">
+      <span class="material-symbols-outlined text-primary" data-icon="apartment">apartment</span>
+      <h1 class="font-headline-md text-headline-md text-primary font-bold tech-font tracking-tight">AllotmentPro</h1>
+    </div>
+    <div class="w-10 h-10 rounded-full overflow-hidden border border-outline-variant ring-2 ring-primary/20">
+      <img class="w-full h-full object-cover" alt="User avatar" src="https://api.dicebear.com/7.x/avataaars/svg?seed=AllotmentPro"/>
+    </div>
+  </div>
+</header>
+
+<main class="max-w-xl mx-auto px-container-margin py-lg space-y-lg pb-32">
+  <!-- Welcome Hero -->
+  <section class="space-y-xs">
+    <h2 class="font-headline-lg-mobile text-headline-lg-mobile text-on-surface tech-font">Smart Allotment</h2>
+    <p class="text-on-surface-variant font-body-sm">Upload your data to automatically distribute participants across available hostel rooms based on gender and capacity.</p>
+  </section>
+
+  <!-- Alert Container -->
+  <div id="alertContainer"></div>
+
+  <!-- Upload Section -->
+  <div class="grid grid-cols-1 gap-md">
+    <!-- Hostel Availability Upload -->
+    <div class="relative group">
+      <div class="file-drop-zone border-2 border-dashed border-outline-variant rounded-xl p-lg bg-surface-container transition-all hover:border-primary hover:bg-surface-container-high flex flex-col items-center justify-center gap-md cursor-pointer" data-type="hostel">
+        <div class="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center">
+          <span class="material-symbols-outlined text-primary" data-icon="bed">bed</span>
+        </div>
+        <div class="text-center">
+          <h3 class="font-headline-md text-on-surface text-base tech-font">Hostel Availability</h3>
+          <p class="text-body-sm text-on-surface-variant mt-1">Upload CSV/Excel room mapping</p>
+          <p class="text-mono-label text-on-surface-variant mt-xs text-[11px]">Columns: Building, Room Number, Capacity, Gender</p>
+        </div>
+        <button class="bg-surface-container-highest text-primary font-label-md px-lg py-sm rounded-lg flex items-center gap-xs active:scale-95 transition-transform hover:bg-surface-container-high" type="button">
+          <span class="material-symbols-outlined text-sm" data-icon="upload_file">upload_file</span>
+          Upload File
+        </button>
+        <input accept=".csv,.xlsx,.xls" class="absolute inset-0 opacity-0 cursor-pointer" type="file" id="hostelFile"/>
+      </div>
+      <p class="text-mono-label text-on-surface-variant mt-sm text-[11px]" id="hostelStatus">No file selected</p>
+    </div>
+
+    <!-- Participant List Upload -->
+    <div class="relative group">
+      <div class="file-drop-zone border-2 border-dashed border-outline-variant rounded-xl p-lg bg-surface-container transition-all hover:border-primary hover:bg-surface-container-high flex flex-col items-center justify-center gap-md cursor-pointer" data-type="participants">
+        <div class="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center">
+          <span class="material-symbols-outlined text-primary" data-icon="group">group</span>
+        </div>
+        <div class="text-center">
+          <h3 class="font-headline-md text-on-surface text-base tech-font">Participant List</h3>
+          <p class="text-body-sm text-on-surface-variant mt-1">Names and gender requirements</p>
+          <p class="text-mono-label text-on-surface-variant mt-xs text-[11px]">Columns: Name, Gender, Department, Year</p>
+        </div>
+        <button class="bg-surface-container-highest text-primary font-label-md px-lg py-sm rounded-lg flex items-center gap-xs active:scale-95 transition-transform hover:bg-surface-container-high" type="button">
+          <span class="material-symbols-outlined text-sm" data-icon="upload_file">upload_file</span>
+          Upload File
+        </button>
+        <input accept=".csv,.xlsx,.xls" class="absolute inset-0 opacity-0 cursor-pointer" type="file" id="participantFile"/>
+      </div>
+      <p class="text-mono-label text-on-surface-variant mt-sm text-[11px]" id="participantStatus">No file selected</p>
+    </div>
+  </div>
+
+  <!-- Primary CTA -->
+  <button id="runBtn" class="w-full bg-primary-container text-on-primary-container h-14 rounded-xl font-headline-md tech-font shadow-lg shadow-primary-container/20 active:scale-[0.98] transition-all flex items-center justify-center gap-md disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+    <span class="material-symbols-outlined" data-icon="bolt">bolt</span>
+    Run Allocation
+  </button>
+
+  <!-- Allocation Progress (Hidden by default) -->
+  <div class="hidden space-y-sm" id="progressArea">
+    <div class="flex justify-between items-end">
+      <span class="font-label-md text-primary tech-font">Processing Data...</span>
+      <span class="text-body-sm text-on-surface-variant font-mono-label" id="progressText">0%</span>
+    </div>
+    <div class="h-2 w-full bg-surface-container-high rounded-full overflow-hidden">
+      <div class="h-full bg-primary transition-all duration-300" id="progressBar" style="width: 0%"></div>
+    </div>
+  </div>
+
+  <!-- Results Section (Hidden by default) -->
+  <section class="hidden space-y-lg pt-base" id="resultsSection">
+    <div class="border border-outline-variant rounded-xl bg-surface-container-low p-md shadow-sm">
+      <div class="flex items-center gap-md border-b border-outline-variant pb-md mb-md">
+        <div class="p-base bg-secondary-container rounded-lg">
+          <span class="material-symbols-outlined text-on-secondary-container" data-icon="task_alt">task_alt</span>
+        </div>
+        <div>
+          <h4 class="font-label-md text-on-surface tech-font">Allocation Complete</h4>
+          <p class="text-body-sm text-on-surface-variant" id="resultsCount">0 participants processed</p>
+        </div>
+      </div>
+      <div class="grid grid-cols-2 gap-md">
+        <div class="p-md bg-surface-container-highest/30 rounded-lg border border-outline-variant">
+          <p class="text-on-surface-variant text-body-sm font-label-md uppercase text-[10px] tracking-wider">Allotted</p>
+          <p class="text-headline-md font-bold text-secondary tech-font" id="allottedCount">0</p>
+        </div>
+        <div class="p-md bg-surface-container-highest/30 rounded-lg border border-outline-variant">
+          <p class="text-on-surface-variant text-body-sm font-label-md uppercase text-[10px] tracking-wider">Waitlist</p>
+          <p class="text-headline-md font-bold text-error tech-font" id="waitlistCount">0</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Results Table Mobile -->
+    <div class="overflow-hidden border border-outline-variant rounded-xl bg-surface-container-lowest">
+      <div class="bg-surface-container-low px-md py-sm border-b border-outline-variant flex justify-between items-center">
+        <h3 class="font-label-md text-on-surface uppercase tracking-widest text-[11px] tech-font">Allotment Logs</h3>
+        <span class="text-body-sm text-primary font-semibold tech-font text-[11px]">Latest Run</span>
+      </div>
+      <div class="overflow-x-auto">
+        <table class="w-full text-left border-collapse">
+          <thead>
+            <tr class="bg-surface-container-low/50 border-b border-outline-variant">
+              <th class="px-md py-sm text-body-sm font-bold text-on-surface-variant font-label-md uppercase text-[10px]">Name</th>
+              <th class="px-md py-sm text-body-sm font-bold text-on-surface-variant font-label-md uppercase text-[10px]">Status</th>
+              <th class="px-md py-sm text-body-sm font-bold text-on-surface-variant font-label-md uppercase text-[10px]">Room</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-outline-variant/30" id="resultsTable">
+            <!-- Results populated by JS -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Download Button -->
+    <button id="downloadBtn" class="w-full bg-secondary-container text-on-secondary-container h-14 rounded-xl font-headline-md tech-font shadow-md active:scale-[0.98] transition-all flex items-center justify-center gap-md">
+      <span class="material-symbols-outlined" data-icon="download">download</span>
+      Download Results
+    </button>
+  </section>
+</main>
+
+<!-- Bottom Navigation Shell -->
+<nav class="lg:hidden fixed bottom-0 left-0 w-full flex justify-around items-center px-container-margin py-xs bg-surface-container-lowest border-t border-outline-variant z-50">
+  <a class="flex flex-col items-center justify-center bg-primary-container text-on-primary-container rounded-full px-4 py-1 active:scale-90 transition-transform" href="#" title="Home">
+    <span class="material-symbols-outlined" data-icon="home">home</span>
+    <span class="text-label-md font-label-md tech-font text-[10px]">Home</span>
+  </a>
+  <a class="flex flex-col items-center justify-center text-on-surface-variant hover:bg-surface-container-high transition-colors p-2 rounded-lg active:scale-90" href="results.html" title="Results">
+    <span class="material-symbols-outlined" data-icon="list_alt">list_alt</span>
+    <span class="text-label-md font-label-md tech-font text-[10px]">Results</span>
+  </a>
+  <a class="flex flex-col items-center justify-center text-on-surface-variant hover:bg-surface-container-high transition-colors p-2 rounded-lg active:scale-90" href="#" title="Settings">
+    <span class="material-symbols-outlined" data-icon="settings">settings</span>
+    <span class="text-label-md font-label-md tech-font text-[10px]">Settings</span>
+  </a>
+</nav>
+
+<script src="js/allocation.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>
