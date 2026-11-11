@@ -1,364 +1,204 @@
 /**
- * AllotmentPro - Allocation Algorithm Module
- * Advanced algorithms for hostel room allocation
+ * AllotmentPro - canonical, validated allocation engine.
  */
+const AllocationStrategy = Object.freeze({ FIFO: 'fifo', PRIORITY: 'priority', GENDER_FIRST: 'gender_first' });
 
-/**
- * Allocation Strategy Enum
- */
-const AllocationStrategy = {
-  FIFO: 'fifo',                    // First In First Out
-  PRIORITY: 'priority',            // By year and priority
-  GENDER_FIRST: 'gender_first',   // Gender preference then FIFO
-  CAPACITY_OPTIMAL: 'capacity_optimal' // Optimal capacity utilization
-};
-
-/**
- * Main allocation class
- */
 class AllocationEngine {
   constructor(hostels, participants, strategy = AllocationStrategy.GENDER_FIRST) {
-    this.hostels = hostels || [];
-    this.participants = participants || [];
+    this.hostels = Array.isArray(hostels) ? hostels : [];
+    this.participants = Array.isArray(participants) ? participants : [];
     this.strategy = strategy;
-    this.results = {
-      allotted: [],
-      waitlist: [],
-      unallocated: [],
-      statistics: {}
-    };
-    this.roomPool = {};
+    this.roomPool = [];
+    this.results = this.emptyResults();
   }
 
-  /**
-   * Initialize room pool from hostel data
-   */
+  emptyResults() {
+    return { allotted: [], waitlist: [], unallocated: [], statistics: {} };
+  }
+
+  static value(row, ...keys) {
+    if (!row || typeof row !== 'object') return undefined;
+    const entries = Object.entries(row);
+    for (const key of keys) {
+      const found = entries.find(([name]) => name.trim().toLowerCase().replace(/[_\\s-]+/g, '') === key.trim().toLowerCase().replace(/[_\\s-]+/g, ''));
+      if (found && found[1] !== undefined && found[1] !== null && String(found[1]).trim() !== '') return found[1];
+    }
+    return undefined;
+  }
+
+  normalizeGender(value) {
+    const gender = String(value ?? '').trim().toLowerCase();
+    if (['m', 'male', 'man', 'boy', 'boys'].includes(gender)) return 'male';
+    if (['f', 'female', 'woman', 'girl', 'girls'].includes(gender)) return 'female';
+    if (['other', 'others', 'non-binary', 'nonbinary'].includes(gender)) return 'other';
+    throw new Error(`Unsupported gender "${value}". Use Male, Female, or Other (or M/F).`);
+  }
+
+  getCapacity(room) {
+    const value = Number(AllocationEngine.value(room, 'capacity'));
+    if (!Number.isInteger(value) || value <= 0) {
+      throw new Error('Every room capacity must be a positive whole number.');
+    }
+    return value;
+  }
+
+  validate() {
+    AllocationUtils.validateHostelData(this.hostels);
+    AllocationUtils.validateParticipantData(this.participants);
+  }
+
   initializeRoomPool() {
-    this.roomPool = {
-      male: [],
-      female: [],
-      other: []
-    };
-
-    this.hostels.forEach((room) => {
-      const gender = this.normalizeGender(room.gender);
+    this.roomPool = [];
+    const seen = new Set();
+    for (const room of this.hostels) {
+      const building = String(AllocationEngine.value(room, 'building')).trim();
+      const roomNumber = String(AllocationEngine.value(room, 'room number', 'room_number')).trim();
+      const gender = this.normalizeGender(AllocationEngine.value(room, 'gender'));
       const capacity = this.getCapacity(room);
-
-      if (!this.roomPool[gender]) {
-        this.roomPool[gender] = [];
+      const key = `${building.toLowerCase()}::${roomNumber.toLowerCase()}`;
+      if (seen.has(key)) throw new Error(`Duplicate room: ${building} - ${roomNumber}.`);
+      seen.add(key);
+      for (let bed = 1; bed <= capacity; bed++) {
+        this.roomPool.push({ id: `${key}::${bed}`, building, roomNumber, bedNumber: bed, gender, occupied: false, occupant: null });
       }
-
-      // Create individual bed slots for each capacity unit
-      for (let i = 0; i < capacity; i++) {
-        this.roomPool[gender].push({
-          id: `${room.building}-${room['room number'] || room['room_number']}-${i}`,
-          building: room.building || 'Unknown',
-          roomNumber: room['room number'] || room['room_number'] || 'N/A',
-          bedNumber: i + 1,
-          gender: gender,
-          occupied: false,
-          occupant: null,
-          allocatedAt: null
-        });
-      }
-    });
-
+    }
     return this.roomPool;
   }
 
-  /**
-   * Normalize gender values
-   */
-  normalizeGender(gender) {
-    if (!gender) return 'other';
-    
-    const normalized = gender.trim().toLowerCase();
-    if (normalized === 'm' || normalized === 'male' || normalized === 'boy') {
-      return 'male';
-    }
-    if (normalized === 'f' || normalized === 'female' || normalized === 'girl') {
-      return 'female';
-    }
-    return 'other';
+  getYear(person) {
+    const year = Number(AllocationEngine.value(person, 'year'));
+    return Number.isFinite(year) ? year : 0;
   }
 
-  /**
-   * Get room capacity
-   */
-  getCapacity(room) {
-    const capacity = room.capacity || room.Capacity || 1;
-    const numCapacity = parseInt(capacity);
-    return isNaN(numCapacity) ? 1 : Math.max(1, numCapacity);
-  }
-
-  /**
-   * Sort participants based on strategy
-   */
   sortParticipants() {
-    const sorted = [...this.participants];
-
-    switch (this.strategy) {
-      case AllocationStrategy.PRIORITY:
-        // Sort by year (descending), then by name
-        sorted.sort((a, b) => {
-          const yearA = this.getYear(a);
-          const yearB = this.getYear(b);
-          if (yearB !== yearA) return yearB - yearA;
-          return (a.name || '').localeCompare(b.name || '');
-        });
-        break;
-
-      case AllocationStrategy.GENDER_FIRST:
-        // Sort by gender match, then by year
-        sorted.sort((a, b) => {
-          const yearA = this.getYear(a);
-          const yearB = this.getYear(b);
-          return yearB - yearA;
-        });
-        break;
-
-      case AllocationStrategy.FIFO:
-      default:
-        // Keep original order
-        break;
+    const list = this.participants.map((person, index) => ({ person, index }));
+    if ([AllocationStrategy.PRIORITY, AllocationStrategy.GENDER_FIRST].includes(this.strategy)) {
+      list.sort((a, b) => this.getYear(b.person) - this.getYear(a.person) || a.index - b.index);
     }
-
-    return sorted;
+    return list.map(item => item.person);
   }
 
-  /**
-   * Get participant year
-   */
-  getYear(participant) {
-    const year = participant.year || participant.Year || 0;
-    const numYear = parseInt(year);
-    return isNaN(numYear) ? 0 : numYear;
+  findAvailableRoom(person) {
+    const gender = this.normalizeGender(AllocationEngine.value(person, 'gender'));
+    return this.roomPool.find(room => !room.occupied && room.gender === gender) || null;
   }
 
-  /**
-   * Find available room for participant
-   */
-  findAvailableRoom(participant) {
-    const gender = this.normalizeGender(participant.gender);
-    const availableRooms = this.roomPool[gender] || [];
-
-    // Find first available room
-    for (let i = 0; i < availableRooms.length; i++) {
-      if (!availableRooms[i].occupied) {
-        return availableRooms[i];
-      }
-    }
-
-    // If no exact gender match, try 'other' category
-    if (gender !== 'other') {
-      const otherRooms = this.roomPool.other || [];
-      for (let i = 0; i < otherRooms.length; i++) {
-        if (!otherRooms[i].occupied) {
-          return otherRooms[i];
-        }
-      }
-    }
-
-    return null;
+  toResult(person, room) {
+    return {
+      name: String(AllocationEngine.value(person, 'name')).trim(),
+      status: room ? 'Allotted' : 'Waitlist',
+      room: room ? `${room.building} - Room ${room.roomNumber}, Bed ${room.bedNumber}` : 'N/A',
+      gender: String(AllocationEngine.value(person, 'gender')),
+      department: AllocationEngine.value(person, 'department') ?? 'N/A',
+      year: AllocationEngine.value(person, 'year') ?? 'N/A',
+      ...(room ? { roomId: room.id } : { reason: 'No available room matching the participant gender.' })
+    };
   }
 
-  /**
-   * Allocate a participant to a room
-   */
-  allocateParticipant(participant, room) {
-    if (!room) return false;
-
-    room.occupied = true;
-    room.occupant = participant.name;
-    room.allocatedAt = new Date().toISOString();
-
-    this.results.allotted.push({
-      name: participant.name,
-      status: 'Allotted',
-      room: `${room.building} - Room ${room.roomNumber}, Bed ${room.bedNumber}`,
-      gender: participant.gender || 'N/A',
-      department: participant.department || participant.Department || 'N/A',
-      year: participant.year || participant.Year || 'N/A',
-      roomId: room.id
-    });
-
-    return true;
-  }
-
-  /**
-   * Add participant to waitlist
-   */
-  addToWaitlist(participant) {
-    this.results.waitlist.push({
-      name: participant.name,
-      status: 'Waitlist',
-      room: 'N/A',
-      gender: participant.gender || 'N/A',
-      department: participant.department || participant.Department || 'N/A',
-      year: participant.year || participant.Year || 'N/A',
-      reason: 'No available rooms matching preferences'
-    });
-  }
-
-  /**
-   * Calculate allocation statistics
-   */
   calculateStatistics() {
-    const stats = {
+    const total = this.roomPool.length;
+    const occupied = this.roomPool.filter(room => room.occupied).length;
+    const genderDistribution = { male: 0, female: 0, other: 0 };
+    this.results.allotted.forEach(item => genderDistribution[this.normalizeGender(item.gender)]++);
+    this.results.statistics = {
       totalParticipants: this.participants.length,
       totalAllotted: this.results.allotted.length,
       totalWaitlist: this.results.waitlist.length,
-      allocationRate: 0,
-      genderDistribution: {
-        male: 0,
-        female: 0,
-        other: 0
-      },
-      roomUtilization: {
-        total: 0,
-        occupied: 0,
-        utilization: 0
-      }
+      allocationRate: this.participants.length ? Number((this.results.allotted.length / this.participants.length * 100).toFixed(2)) : 0,
+      genderDistribution,
+      roomUtilization: { total, occupied, utilization: total ? Number((occupied / total * 100).toFixed(2)) : 0 }
     };
-
-    // Calculate allocation rate
-    stats.allocationRate = stats.totalParticipants > 0 
-      ? (stats.totalAllotted / stats.totalParticipants * 100).toFixed(2)
-      : 0;
-
-    // Gender distribution
-    this.results.allotted.forEach((result) => {
-      const gender = this.normalizeGender(result.gender);
-      stats.genderDistribution[gender] = (stats.genderDistribution[gender] || 0) + 1;
-    });
-
-    // Room utilization
-    Object.values(this.roomPool).forEach((rooms) => {
-      stats.roomUtilization.total += rooms.length;
-      stats.roomUtilization.occupied += rooms.filter(r => r.occupied).length;
-    });
-
-    if (stats.roomUtilization.total > 0) {
-      stats.roomUtilization.utilization = (
-        stats.roomUtilization.occupied / stats.roomUtilization.total * 100
-      ).toFixed(2);
-    }
-
-    this.results.statistics = stats;
-    return stats;
-  }
-
-  /**
-   * Execute allocation
-   */
-  execute() {
-    // Initialize room pool
-    this.initializeRoomPool();
-
-    // Sort participants
-    const sortedParticipants = this.sortParticipants();
-
-    // Allocate each participant
-    sortedParticipants.forEach((participant) => {
-      const room = this.findAvailableRoom(participant);
-      
-      if (room) {
-        this.allocateParticipant(participant, room);
-      } else {
-        this.addToWaitlist(participant);
-      }
-    });
-
-    // Calculate statistics
-    this.calculateStatistics();
-
-    return this.results;
-  }
-
-  /**
-   * Get results
-   */
-  getResults() {
-    return this.results;
-  }
-
-  /**
-   * Get statistics
-   */
-  getStatistics() {
     return this.results.statistics;
   }
+
+  execute() {
+    this.validate();
+    this.results = this.emptyResults();
+    this.initializeRoomPool();
+    for (const person of this.sortParticipants()) {
+      const room = this.findAvailableRoom(person);
+      if (room) {
+        room.occupied = true;
+        room.occupant = String(AllocationEngine.value(person, 'name')).trim();
+        this.results.allotted.push(this.toResult(person, room));
+      } else {
+        this.results.waitlist.push(this.toResult(person, null));
+      }
+    }
+    this.calculateStatistics();
+    return this.results;
+  }
+
+  getResults() { return this.results; }
+  getStatistics() { return this.results.statistics; }
 }
 
-/**
- * Utility functions for allocation
- */
 const AllocationUtils = {
-  /**
-   * Validate hostel data
-   */
   validateHostelData(data) {
-    if (!Array.isArray(data) || data.length === 0) {
-      throw new Error('Hostel data must be a non-empty array');
-    }
-
-    const requiredFields = ['building', 'room number', 'capacity', 'gender'];
-    const hasRequiredFields = data.every((room) => {
-      return requiredFields.some(field => 
-        room[field] || room[field.replace(' ', '_')] || room[field.toUpperCase()]
-      );
+    if (!Array.isArray(data) || !data.length) throw new Error('Hostel data must contain at least one room.');
+    const errors = [];
+    const seen = new Set();
+    data.forEach((room, i) => {
+      const row = i + 2;
+      const building = AllocationEngine.value(room, 'building');
+      const number = AllocationEngine.value(room, 'room number', 'room_number');
+      const capacity = Number(AllocationEngine.value(room, 'capacity'));
+      const gender = AllocationEngine.value(room, 'gender');
+      if (!building) errors.push(`Hostel row ${row}: building is required.`);
+      if (!number) errors.push(`Hostel row ${row}: room number is required.`);
+      if (!Number.isInteger(capacity) || capacity <= 0) errors.push(`Hostel row ${row}: capacity must be a positive whole number.`);
+      if (!gender) errors.push(`Hostel row ${row}: gender is required.`);
+      else {
+        try { new AllocationEngine([], []).normalizeGender(gender); }
+        catch (error) { errors.push(`Hostel row ${row}: ${error.message}`); }
+      }
+      if (building && number) {
+        const key = `${String(building).trim().toLowerCase()}::${String(number).trim().toLowerCase()}`;
+        if (seen.has(key)) errors.push(`Hostel row ${row}: duplicate room ${building} - ${number}.`);
+        seen.add(key);
+      }
     });
-
-    if (!hasRequiredFields) {
-      throw new Error(`Hostel data must contain fields: ${requiredFields.join(', ')}`);
-    }
-
+    if (errors.length) throw new Error(errors.slice(0, 8).join(' '));
     return true;
   },
 
-  /**
-   * Validate participant data
-   */
   validateParticipantData(data) {
-    if (!Array.isArray(data) || data.length === 0) {
-      throw new Error('Participant data must be a non-empty array');
-    }
-
-    const requiredFields = ['name', 'gender'];
-    const hasRequiredFields = data.every((participant) => {
-      return requiredFields.some(field => 
-        participant[field] || participant[field.toUpperCase()]
-      );
+    if (!Array.isArray(data) || !data.length) throw new Error('Participant data must contain at least one participant.');
+    const errors = [];
+    const seen = new Set();
+    data.forEach((person, i) => {
+      const row = i + 2;
+      const name = AllocationEngine.value(person, 'name');
+      const gender = AllocationEngine.value(person, 'gender');
+      if (!name) errors.push(`Participant row ${row}: name is required.`);
+      if (!gender) errors.push(`Participant row ${row}: gender is required.`);
+      else {
+        try { new AllocationEngine([], []).normalizeGender(gender); }
+        catch (error) { errors.push(`Participant row ${row}: ${error.message}`); }
+      }
+      if (name) {
+        const key = String(name).trim().toLowerCase();
+        if (seen.has(key)) errors.push(`Participant row ${row}: duplicate name "${name}".`);
+        seen.add(key);
+      }
     });
-
-    if (!hasRequiredFields) {
-      throw new Error(`Participant data must contain fields: ${requiredFields.join(', ')}`);
-    }
-
+    if (errors.length) throw new Error(errors.slice(0, 8).join(' '));
     return true;
   },
 
-  /**
-   * Generate allocation report
-   */
   generateReport(results) {
-    let report = '=== ALLOCATION REPORT ===\n\n';
-    report += `Total Participants: ${results.statistics.totalParticipants}\n`;
-    report += `Allotted: ${results.statistics.totalAllotted}\n`;
-    report += `Waitlist: ${results.statistics.totalWaitlist}\n`;
-    report += `Allocation Rate: ${results.statistics.allocationRate}%\n`;
-    report += `Room Utilization: ${results.statistics.roomUtilization.utilization}%\n\n`;
-
-    report += '--- GENDER DISTRIBUTION ---\n';
-    Object.entries(results.statistics.genderDistribution).forEach(([gender, count]) => {
-      report += `${gender}: ${count}\n`;
-    });
-
-    return report;
+    const stats = results.statistics || {};
+    return [
+      '=== ALLOCATION REPORT ===',
+      `Total Participants: ${stats.totalParticipants ?? 0}`,
+      `Allotted: ${stats.totalAllotted ?? 0}`,
+      `Waitlist: ${stats.totalWaitlist ?? 0}`,
+      `Allocation Rate: ${stats.allocationRate ?? 0}%`,
+      `Room Utilization: ${stats.roomUtilization?.utilization ?? 0}%`
+    ].join('\\n');
   }
 };
 
-// Export for use in other modules
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = { AllocationEngine, AllocationStrategy, AllocationUtils };
 }
