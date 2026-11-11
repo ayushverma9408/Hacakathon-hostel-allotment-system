@@ -26,7 +26,7 @@ const metrics = [
   { label: "Allocation runs", value: "0", note: "No runs in this workspace", icon: Activity }
 ];
 
-function SectionLabel({ children }: { children: React.ReactNode }) {
+function SectionLabel({ children }: { children: ReactNode }) {
   return <p className="mb-3 text-[11px] font-semibold uppercase tracking-[.22em] text-slate-500">{children}</p>;
 }
 
