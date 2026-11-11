@@ -94,7 +94,7 @@ function handleDrop(e, fileType, dropZone) {
     const file = files[0];
     
     // Validate file type
-    const validTypes = ['.csv', '.xlsx', '.xls'];
+    const validTypes = ['.csv'];
     const fileExtension = file.name.substring(file.name.lastIndexOf('.')).toLowerCase();
     
     if (!validTypes.includes(fileExtension)) {
@@ -133,14 +133,12 @@ function processFile(file, fileType) {
       const content = e.target.result;
       let data;
 
-      if (file.name.endsWith('.csv')) {
-        data = parseCSV(content);
-      } else if (file.name.endsWith('.xlsx') || file.name.endsWith('.xls')) {
-        // For Excel files, we'd typically use a library like xlsx
-        // For now, show a message
-        showAlert('Excel files require the xlsx library. Please use CSV format or implement Excel parsing.', 'warning');
+      const extension = file.name.slice(file.name.lastIndexOf('.')).toLowerCase();
+      if (extension !== '.csv') {
+        showAlert('Only CSV files are supported right now. Export your spreadsheet as CSV and upload it again.', 'warning');
         return;
       }
+      data = parseCSV(content);
 
       if (fileType === 'hostel') {
         appState.hostelData = data;
@@ -171,7 +169,7 @@ function processFile(file, fileType) {
  * Parse CSV content
  */
 function parseCSV(content) {
-  const text = String(content ?? '').replace(/^\\uFEFF/, '');
+  const text = String(content ?? '').replace(/^\uFEFF/, '');
   const rows = [];
   let row = [], field = '', quoted = false;
   for (let i = 0; i < text.length; i++) {
@@ -193,7 +191,7 @@ function parseCSV(content) {
   row.push(field.trim());
   if (row.some(value => value !== '')) rows.push(row);
   if (rows.length < 2) throw new Error('CSV needs a header row and at least one data row.');
-  const headers = rows[0].map(h => h.trim().toLowerCase().replace(/^\\uFEFF/, ''));
+  const headers = rows[0].map(h => h.trim().toLowerCase().replace(/^\uFEFF/, ''));
   if (headers.some(h => !h)) throw new Error('CSV headers cannot be empty.');
   if (new Set(headers).size !== headers.length) throw new Error('CSV contains duplicate column headers.');
   return rows.slice(1).map((values, index) => {
