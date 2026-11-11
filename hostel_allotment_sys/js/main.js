@@ -94,7 +94,7 @@ function handleDrop(e, fileType, dropZone) {
     const file = files[0];
     
     // Validate file type
-    const validTypes = ['.csv', '.xlsx', '.xls'];
+    const validTypes = ['.csv'];
     const fileExtension = file.name.substring(file.name.lastIndexOf('.')).toLowerCase();
     
     if (!validTypes.includes(fileExtension)) {
@@ -133,14 +133,12 @@ function processFile(file, fileType) {
       const content = e.target.result;
       let data;
 
-      if (file.name.endsWith('.csv')) {
-        data = parseCSV(content);
-      } else if (file.name.endsWith('.xlsx') || file.name.endsWith('.xls')) {
-        // For Excel files, we'd typically use a library like xlsx
-        // For now, show a message
-        showAlert('Excel files require the xlsx library. Please use CSV format or implement Excel parsing.', 'warning');
+      const extension = file.name.slice(file.name.lastIndexOf('.')).toLowerCase();
+      if (extension !== '.csv') {
+        showAlert('Only CSV files are supported right now. Export your spreadsheet as CSV and upload it again.', 'warning');
         return;
       }
+      data = parseCSV(content);
 
       if (fileType === 'hostel') {
         appState.hostelData = data;
@@ -171,33 +169,39 @@ function processFile(file, fileType) {
  * Parse CSV content
  */
 function parseCSV(content) {
-  const lines = content.trim().split('\n');
-  if (lines.length < 2) {
-    throw new Error('CSV file must contain at least a header row and one data row');
+  const text = String(content ?? '').replace(/^\uFEFF/, '');
+  const rows = [];
+  let row = [], field = '', quoted = false;
+  for (let i = 0; i < text.length; i++) {
+    const char = text[i];
+    if (quoted) {
+      if (char === '"' && text[i + 1] === '"') { field += '"'; i++; }
+      else if (char === '"') quoted = false;
+      else field += char;
+    } else if (char === '"' && field.length === 0) quoted = true;
+    else if (char === ',') { row.push(field.trim()); field = ''; }
+    else if (char === '\n' || char === '\r') {
+      if (char === '\r' && text[i + 1] === '\n') i++;
+      row.push(field.trim()); field = '';
+      if (row.some(value => value !== '')) rows.push(row);
+      row = [];
+    } else field += char;
   }
-
-  const headers = lines[0].split(',').map(h => h.trim().toLowerCase());
-  const data = [];
-
-  for (let i = 1; i < lines.length; i++) {
-    if (lines[i].trim() === '') continue;
-
-    const values = lines[i].split(',').map(v => v.trim());
-    const row = {};
-
-    headers.forEach((header, index) => {
-      row[header] = values[index] || '';
-    });
-
-    data.push(row);
-  }
-
-  return data;
+  if (quoted) throw new Error('CSV contains an unclosed quoted field.');
+  row.push(field.trim());
+  if (row.some(value => value !== '')) rows.push(row);
+  if (rows.length < 2) throw new Error('CSV needs a header row and at least one data row.');
+  const headers = rows[0].map(h => h.trim().toLowerCase().replace(/^\uFEFF/, ''));
+  if (headers.some(h => !h)) throw new Error('CSV headers cannot be empty.');
+  if (new Set(headers).size !== headers.length) throw new Error('CSV contains duplicate column headers.');
+  return rows.slice(1).map((values, index) => {
+    if (values.length > headers.length) throw new Error(`CSV row ${index + 2} has more values than the header row.`);
+    const record = {};
+    headers.forEach((header, column) => { record[header] = values[column] ?? ''; });
+    return record;
+  });
 }
 
-/**
- * Update run button state
- */
 function updateRunButtonState() {
   const canRun = appState.hostelData && appState.participantData && !appState.isProcessing;
   runBtn.disabled = !canRun;
@@ -230,6 +234,7 @@ async function handleRunAllocation() {
 
     // Store results and display them
     appState.allocationResults = results;
+    localStorage.setItem('allocationResults', JSON.stringify({ ...results, createdAt: new Date().toISOString() }));
     displayResults(results);
 
     showAlert('Allocation completed successfully!', 'success');
@@ -249,83 +254,14 @@ async function handleRunAllocation() {
  * Main allocation algorithm
  */
 function allocateParticipants(hostelData, participantData) {
-  const results = {
-    allotted: [],
-    waitlist: [],
-    unallocated: []
-  };
-
-  // Validate data structure
-  if (!hostelData || !participantData) {
-    throw new Error('Invalid data format');
+  if (typeof AllocationEngine === 'undefined' || typeof AllocationUtils === 'undefined') {
+    throw new Error('Allocation engine failed to load. Refresh the page and try again.');
   }
-
-  // Initialize hostel rooms by gender
-  const roomsByGender = {
-    male: [],
-    female: [],
-    other: []
-  };
-
-  // Organize hostel rooms
-  hostelData.forEach((room) => {
-    const gender = room.gender?.toLowerCase() || 'other';
-    const capacity = parseInt(room.capacity) || 1;
-    
-    for (let i = 0; i < capacity; i++) {
-      roomsByGender[gender] = roomsByGender[gender] || [];
-      roomsByGender[gender].push({
-        building: room.building || 'N/A',
-        roomNumber: room['room number'] || room['room_number'] || 'N/A',
-        gender: gender,
-        occupied: false,
-        occupant: null
-      });
-    }
-  });
-
-  // Sort participants by year (seniors first)
-  const sortedParticipants = [...participantData].sort((a, b) => {
-    const yearA = parseInt(a.year) || 0;
-    const yearB = parseInt(b.year) || 0;
-    return yearB - yearA;
-  });
-
-  // Allocate participants
-  sortedParticipants.forEach((participant) => {
-    const gender = participant.gender?.toLowerCase() || 'other';
-    const rooms = roomsByGender[gender] || [];
-    const availableRoom = rooms.find(r => !r.occupied);
-
-    if (availableRoom) {
-      availableRoom.occupied = true;
-      availableRoom.occupant = participant.name;
-      results.allotted.push({
-        name: participant.name,
-        status: 'Allotted',
-        room: `${availableRoom.building} - ${availableRoom.roomNumber}`,
-        gender: participant.gender,
-        department: participant.department || 'N/A',
-        year: participant.year || 'N/A'
-      });
-    } else {
-      results.waitlist.push({
-        name: participant.name,
-        status: 'Waitlist',
-        room: 'N/A',
-        gender: participant.gender,
-        department: participant.department || 'N/A',
-        year: participant.year || 'N/A'
-      });
-    }
-  });
-
-  return results;
+  AllocationUtils.validateHostelData(hostelData);
+  AllocationUtils.validateParticipantData(participantData);
+  return new AllocationEngine(hostelData, participantData, AllocationStrategy.GENDER_FIRST).execute();
 }
 
-/**
- * Display allocation results
- */
 function displayResults(results) {
   const allResults = [...results.allotted, ...results.waitlist];
   
