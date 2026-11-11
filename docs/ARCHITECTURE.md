@@ -17,7 +17,7 @@ The new application has a PostgreSQL/Prisma data foundation and Auth.js authenti
 - CSV parsing supports quoted commas, escaped quotes, multiline fields and UTF-8 BOM headers.
 - Completed browser runs are saved for the Results page.
 - Excel upload is disabled until a real XLS/XLSX parser is added.
-- Regression tests are in `tests/allocation.test.js`.
+- Regression tests are in `tests/allocation.test.cjs`.
 
 The legacy app remains browser-only and is not suitable for real student records or production use.
 
