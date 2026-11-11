@@ -1,0 +1,179 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum UserRole {
+  ADMIN
+  WARDEN
+  STAFF
+}
+
+enum AcademicSessionStatus {
+  DRAFT
+  ACTIVE
+  CLOSED
+}
+
+enum ParticipantStatus {
+  ACTIVE
+  INACTIVE
+}
+
+enum AllocationRunStatus {
+  DRAFT
+  COMPLETED
+  FAILED
+}
+
+enum AllocationStatus {
+  CONFIRMED
+  WAITLISTED
+  CANCELLED
+}
+
+model User {
+  id          String       @id @default(cuid())
+  email       String       @unique @db.VarChar(254)
+  name        String       @db.VarChar(120)
+  role        UserRole     @default(STAFF)
+  isActive    Boolean      @default(true)
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  createdRuns AllocationRun[] @relation("RunCreator")
+  auditEvents AuditEvent[]
+
+  @@index([role, isActive])
+}
+
+model AcademicSession {
+  id             String                @id @default(cuid())
+  code           String                @unique @db.VarChar(32)
+  name           String                @db.VarChar(100)
+  startsAt       DateTime
+  endsAt         DateTime
+  status         AcademicSessionStatus @default(DRAFT)
+  createdAt      DateTime              @default(now())
+  updatedAt      DateTime              @updatedAt
+  participants   Participant[]
+  allocationRuns AllocationRun[]
+  allocations    Allocation[]
+
+  @@index([status, startsAt])
+}
+
+model Hostel {
+  id          String     @id @default(cuid())
+  code        String     @unique @db.VarChar(24)
+  name        String     @db.VarChar(100)
+  description String?    @db.VarChar(500)
+  policyCode  String?    @db.VarChar(64)
+  isActive    Boolean    @default(true)
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  buildings   Building[]
+
+  @@index([isActive, name])
+}
+
+model Building {
+  id        String   @id @default(cuid())
+  code      String   @db.VarChar(24)
+  name      String   @db.VarChar(100)
+  hostelId  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  hostel    Hostel   @relation(fields: [hostelId], references: [id], onDelete: Restrict)
+  rooms     Room[]
+
+  @@unique([hostelId, code])
+  @@index([hostelId, name])
+}
+
+model Room {
+  id         String       @id @default(cuid())
+  code       String       @db.VarChar(24)
+  floor      Int          @default(0)
+  capacity   Int
+  isActive   Boolean      @default(true)
+  buildingId String
+  createdAt  DateTime     @default(now())
+  updatedAt  DateTime     @updatedAt
+  building   Building     @relation(fields: [buildingId], references: [id], onDelete: Restrict)
+  allocations Allocation[]
+
+  @@unique([buildingId, code])
+  @@index([buildingId, isActive])
+}
+
+model Participant {
+  id             String             @id @default(cuid())
+  registrationNo String             @unique @db.VarChar(40)
+  fullName       String             @db.VarChar(120)
+  email          String?            @db.VarChar(254)
+  department     String?            @db.VarChar(100)
+  academicYear   Int?
+  status         ParticipantStatus @default(ACTIVE)
+  sessionId      String
+  createdAt      DateTime           @default(now())
+  updatedAt      DateTime           @updatedAt
+  session        AcademicSession    @relation(fields: [sessionId], references: [id], onDelete: Restrict)
+  allocations    Allocation[]
+
+  @@index([sessionId, status])
+  @@index([fullName])
+}
+
+model AllocationRun {
+  id              String              @id @default(cuid())
+  sessionId       String
+  createdById     String?
+  status          AllocationRunStatus @default(DRAFT)
+  algorithmVersion String             @default("v1") @db.VarChar(32)
+  startedAt       DateTime            @default(now())
+  completedAt     DateTime?
+  createdAt       DateTime            @default(now())
+  session         AcademicSession     @relation(fields: [sessionId], references: [id], onDelete: Restrict)
+  createdBy       User?               @relation("RunCreator", fields: [createdById], references: [id], onDelete: SetNull)
+  allocations     Allocation[]
+
+  @@index([sessionId, status, createdAt])
+}
+
+model Allocation {
+  id             String           @id @default(cuid())
+  runId          String
+  sessionId      String
+  participantId  String
+  roomId         String
+  bedNumber      Int
+  status         AllocationStatus @default(CONFIRMED)
+  assignedAt     DateTime         @default(now())
+  run            AllocationRun    @relation(fields: [runId], references: [id], onDelete: Restrict)
+  session        AcademicSession  @relation(fields: [sessionId], references: [id], onDelete: Restrict)
+  participant    Participant     @relation(fields: [participantId], references: [id], onDelete: Restrict)
+  room           Room             @relation(fields: [roomId], references: [id], onDelete: Restrict)
+
+  @@unique([participantId, sessionId])
+  @@unique([runId, roomId, bedNumber])
+  @@index([runId, status])
+  @@index([roomId, status])
+}
+
+model AuditEvent {
+  id         String   @id @default(cuid())
+  actorId    String?
+  action     String   @db.VarChar(80)
+  entityType String   @db.VarChar(80)
+  entityId   String   @db.VarChar(128)
+  metadata   Json?
+  createdAt  DateTime @default(now())
+  actor      User?    @relation(fields: [actorId], references: [id], onDelete: SetNull)
+
+  @@index([entityType, entityId, createdAt])
+  @@index([actorId, createdAt])
+}
