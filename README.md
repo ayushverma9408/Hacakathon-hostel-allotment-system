@@ -1,28 +1,42 @@
-# Hostel Allotment System
+# AllotmentPro — Hostel Allotment Platform
 
-A browser-based prototype for assigning participants to hostel rooms using room capacity and participant eligibility data. This repository is being upgraded incrementally into a full-stack hostel allotment management platform.
+A hostel administration and room-allocation platform being developed in phases. The repository contains the original browser prototype and a new Next.js application.
 
-> **Current status:** The checked-in application is a static HTML/CSS/JavaScript prototype. It is not yet a SvelteKit application and does not currently have a backend, database, or authentication. See [Current State and Target Architecture](docs/ARCHITECTURE.md).
+## Project status
 
-## Current prototype
+- **Legacy prototype:** `hostel_allotment_sys/` — static HTML, CSS and JavaScript, with a stabilized allocation engine.
+- **New application:** `src/` — Next.js App Router, React, strict TypeScript and Tailwind CSS.
+- **Current milestone:** Phase 3 application foundation.
+- **Not yet connected:** PostgreSQL, authentication, persistent records, and production allocation APIs.
 
-- Upload participant and hostel CSV files.
-- Preview allotment and waitlist results.
-- Export a CSV report.
-- Dark responsive interface.
+See [Phase 3 notes](docs/PHASE-3.md), [architecture](docs/ARCHITECTURE.md), and [roadmap](docs/ROADMAP.md).
 
-**Known limitations:** Excel upload is not implemented in the current JavaScript; CSV parsing is basic; completed allocations are not reliably persisted between pages; and the allocation logic is duplicated. These are tracked for the first stabilization phase.
+## Run the new application
 
-## Run the current prototype
+Requires Node.js 20.9 or newer.
 
-The existing pages can be opened directly in a modern browser:
+```bash
+npm install
+cp .env.example .env.local
+npm run dev
+```
 
-1. Open `hostel_allotment_sys/index.html`.
-2. Upload the hostel and participant CSV files.
-3. Run the allocation and review the preview.
-4. Export the CSV report.
+Open [http://localhost:3000](http://localhost:3000).
 
-For a local static server, run:
+Health endpoint: [http://localhost:3000/api/health](http://localhost:3000/api/health).
+
+## Quality checks
+
+```bash
+npm run lint
+npm run typecheck
+npm run build
+npm run test:allocation
+```
+
+## Run the legacy prototype
+
+Open `hostel_allotment_sys/index.html` in a browser, or run:
 
 ```bash
 python -m http.server 8000
@@ -30,27 +44,14 @@ python -m http.server 8000
 
 Then visit `http://localhost:8000/hostel_allotment_sys/`.
 
-## Input data
+The legacy prototype currently supports CSV uploads only. Do not upload real student records; it has no production authentication or server-side storage.
 
-The interface expects hostel data with fields such as `Building`, `Room Number`, `Capacity`, and `Gender`, and participant data with `Name` and `Gender`. The import workflow will be upgraded with explicit column mapping and validation.
+## Environment and security
 
-Do not upload real student records to this prototype. It currently processes data in the browser and has no production security or access controls.
+Copy `.env.example` to `.env.local` for local development. The database and auth values are placeholders for upcoming phases. Never commit real secrets, database credentials, or real student data.
 
-## Upgrade plan
+## Development workflow
 
-Development is organized into small, reviewable phases:
-
-1. Repository audit and stabilization.
-2. TypeScript application foundation.
-3. PostgreSQL database and backend APIs.
-4. Authentication and role-based access.
-5. Hostel and participant management.
-6. Server-side allocation engine.
-7. Reports and operational dashboard.
-8. Security, testing, and deployment.
-
-See [docs/ROADMAP.md](docs/ROADMAP.md) and [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
-
-## Development
-
-All ongoing work should happen on feature branches. Keep secrets and real participant data out of Git.
+- Work on feature branches; keep `main` protected from unfinished work.
+- Complete and verify each phase before moving to the next.
+- Keep the legacy prototype available until the new application replaces its workflows.
