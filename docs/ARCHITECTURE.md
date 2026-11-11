@@ -1,47 +1,58 @@
 # Current State and Target Architecture
 
-## Current repository (verified)
-The default branch currently contains a static HTML/CSS/JavaScript prototype under `hostel_allotment_sys/`:
-- `index.html`: file upload and allocation interface.
-- `results.html`: reads previous results from browser localStorage.
-- `js/main.js`: browser-side file parsing, UI, and a second allocation implementation.
-- `js/allocation.js`: a separate AllocationEngine and data validation helpers.
+## Repository state
 
-There is no checked-in `package.json`, server application, database schema, migration, or authentication implementation in the inspected root. The README's SvelteKit/TypeScript/Tailwind description does not match the actual checked-in code. Tailwind is loaded from its CDN in the HTML pages.
+The repository contains two application tracks:
 
-## Risks found during the initial code review
-1. Excel uploads are advertised in the UI, but `main.js` explicitly rejects XLS/XLSX files.
-2. CSV parsing splits on commas and newlines, so quoted commas, escaped quotes, and multiline cells are not handled correctly.
-3. There are two allocation implementations. The UI calls the one in `main.js`, not the richer `AllocationEngine`.
-4. The UI allocation compares raw lowercased gender strings; values such as `M`, `Male`, and `Boy` are not consistently normalized.
-5. The allocation helper's required-field validation uses `some` across fields, allowing rows missing required columns to pass.
-6. Capacity parsing silently defaults invalid values to one; negative, fractional, and non-numeric capacities need explicit validation.
-7. The main page does not persist a completed run for the results page, despite that page expecting `allocationResults` in localStorage.
-8. The README's project path contains a spelling mismatch and its setup instructions refer to a SvelteKit app that is not present.
+1. **Legacy prototype** under `hostel_allotment_sys/`: static HTML/CSS/JavaScript, stabilized during Phase 2.
+2. **New application** at the repository root: Next.js App Router, React, TypeScript and Tailwind CSS.
 
-These are initial static-review findings, not a claim that every runtime path has been tested.
+The new application has a PostgreSQL/Prisma data foundation and Auth.js authentication with role-aware server authorization on the Phase 5 branch. The legacy app remains available during migration and is not covered by the new authentication boundary.
 
-## Recommended target stack
-- **Full stack:** Next.js (App Router) + TypeScript.
-- **UI:** Tailwind CSS + reusable accessible components.
-- **Database:** PostgreSQL.
-- **ORM and migrations:** Prisma.
-- **Authentication:** Auth.js or an equivalent maintained authentication provider, with server-enforced roles.
-- **Validation:** Zod at every API boundary.
-- **Testing:** Vitest for domain logic and Playwright for critical user journeys.
-- **Deployment:** Vercel for the application and a managed PostgreSQL provider.
+## Stabilized legacy prototype
 
-This stack gives us one TypeScript codebase, server-side allocation and authorization, durable relational data, and a straightforward deployment path. We will migrate in stages rather than replacing the prototype all at once.
+- One canonical allocation engine is used by the UI.
+- Hostel and participant records are validated row by row.
+- Room capacity and duplicate room identifiers are checked.
+- CSV parsing supports quoted commas, escaped quotes, multiline fields and UTF-8 BOM headers.
+- Completed browser runs are saved for the Results page.
+- Excel upload is disabled until a real XLS/XLSX parser is added.
+- Regression tests are in `tests/allocation.test.cjs`.
 
-## Core data model (planned)
-- User: identity, password/auth-provider reference, role, active status.
-- AcademicSession: year/term and lifecycle status.
-- Hostel: name, category/eligibility rules, active status.
-- Building: belongs to a hostel.
-- Room: building, room number, capacity, occupancy policy, active status.
-- Participant: unique institutional identifier, name, gender/category where required by the institution, department, year, and contact fields.
-- AllocationRun: session, creator, status, rule-set version, timestamps.
-- Allocation: run, participant, room, bed/slot, status.
-- AuditEvent: actor, action, entity, timestamp, and safe change metadata.
+The legacy app remains browser-only and is not suitable for real student records or production use.
 
-Actual fields and eligibility policies will be finalized before database migrations. We should not assume gender or other sensitive attributes are the only or correct allocation criteria; the institution's approved policy must govern those rules.
+## New application stack
+
+- **Full stack:** Next.js App Router + React + TypeScript.
+- **UI:** Tailwind CSS with a responsive dashboard shell.
+- **Database:** PostgreSQL 16 for local development; production provider not selected.
+- **ORM and migrations:** Prisma ORM 7 with the PostgreSQL driver adapter.
+- **Validation:** Zod schemas at future API boundaries.
+- **Authentication:** Auth.js Credentials provider, encrypted JWT sessions (8-hour maximum), bcrypt password hashes and server-side Admin/Warden/Staff permissions.
+- **Testing:** Node's built-in test runner for the legacy allocation domain, plus Prisma validation/client generation and Next.js quality checks.
+- **Deployment target:** Vercel plus a managed PostgreSQL provider, subject to production configuration.
+
+## Implemented data model
+
+- **User:** email, display name, role, active status and optional bcrypt password hash.
+- **AcademicSession:** unique session code, date range and lifecycle status.
+- **Hostel:** unique code, name, active status and optional institution-defined policy code.
+- **Building:** belongs to a hostel; building codes are unique within a hostel.
+- **Room:** belongs to a building; room codes are unique within a building and capacity must be positive.
+- **Participant:** unique institutional registration number, session, name and optional academic/contact metadata.
+- **AllocationRun:** session, optional creator, algorithm version and lifecycle status.
+- **Allocation:** links run, session, participant and room; uniqueness constraints prevent duplicate participant/session and duplicate bed slots within a run.
+- **AuditEvent:** optional actor, action, entity reference and JSON metadata.
+
+The initial migration adds foreign keys, indexes, unique constraints and basic CHECK constraints. Bed number-to-room-capacity enforcement and cross-record allocation consistency will be implemented transactionally in Phase 7.
+
+## Security and migration principles
+
+- Never commit secrets, production credentials or real student records.
+- Seed data is synthetic and uses reserved `.test` email addresses.
+- Validate input on the server; browser validation is only a usability aid.
+- Enforce authorization on every protected server action/API using the centralized permission matrix; re-read current roles and account status from PostgreSQL.
+- Prevent over-capacity and duplicate assignments with database constraints and transactions.
+- Keep an audit trail for administrative changes.
+- Do not invent eligibility rules; institution-approved policy governs allocation.
+- Migrate functionality incrementally; do not remove the legacy prototype until replacement workflows are tested.

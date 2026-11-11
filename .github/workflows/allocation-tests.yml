@@ -1,0 +1,41 @@
+name: Application and allocation checks
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+    branches: ["**"]
+
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+    env:
+      AUTH_SECRET: ci-only-secret-do-not-use-outside-tests
+      DATABASE_URL: postgresql://allotment_dev:allotment_dev@localhost:5432/hostel_allotment?schema=public
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install dependencies
+        run: npm install --no-audit --no-fund
+      - name: Validate Prisma schema
+        run: npm run db:validate
+      - name: Generate Prisma Client
+        run: npm run db:generate
+      - name: Run allocation regression tests
+        run: npm run test:allocation
+      - name: Lint application
+        run: npm run lint
+      - name: Type-check application
+        run: npm run typecheck
+      - name: Build production application
+        run: npm run build
+        env:
+          NEXT_TELEMETRY_DISABLED: 1
