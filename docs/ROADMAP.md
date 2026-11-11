@@ -37,9 +37,14 @@ See [Phase 3 implementation notes](PHASE-3.md).
 See [Phase 4 implementation notes](PHASE-4.md).
 
 ## Phase 5 — Authentication and roles
-- Add secure sign-in and session handling.
-- Implement Admin, Warden and Read-only/Staff permissions.
-- Protect all management APIs on the server.
+- [x] Add Auth.js credentials sign-in and eight-hour JWT sessions.
+- [x] Hash provisioned passwords with bcrypt; disable public registration.
+- [x] Add Admin, Warden and Staff permission matrix.
+- [x] Protect dashboard routes and enforce permissions in API handlers.
+- [x] Add a one-time administrator bootstrap command.
+- [ ] Verify full CI pipeline after Phase 5 changes.
+
+See [Phase 5 implementation notes](PHASE-5.md).
 
 ## Phase 6 — Hostel and participant management
 - CRUD for hostels, buildings, rooms and capacity.
