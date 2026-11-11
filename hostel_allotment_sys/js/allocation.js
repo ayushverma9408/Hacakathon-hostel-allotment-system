@@ -165,7 +165,6 @@ const AllocationUtils = {
   validateParticipantData(data) {
     if (!Array.isArray(data) || !data.length) throw new Error('Participant data must contain at least one participant.');
     const errors = [];
-    const seen = new Set();
     data.forEach((person, i) => {
       const row = i + 2;
       const name = AllocationEngine.value(person, 'name');
@@ -175,11 +174,6 @@ const AllocationUtils = {
       else {
         try { new AllocationEngine([], []).normalizeGender(gender); }
         catch (error) { errors.push(`Participant row ${row}: ${error.message}`); }
-      }
-      if (name) {
-        const key = String(name).trim().toLowerCase();
-        if (seen.has(key)) errors.push(`Participant row ${row}: duplicate name "${name}".`);
-        seen.add(key);
       }
     });
     if (errors.length) throw new Error(errors.slice(0, 8).join(' '));
