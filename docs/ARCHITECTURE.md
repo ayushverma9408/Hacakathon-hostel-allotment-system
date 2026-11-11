@@ -2,23 +2,21 @@
 
 ## Repository state
 
-The repository currently contains two application tracks:
+The repository contains two application tracks:
 
 1. **Legacy prototype** under `hostel_allotment_sys/`: static HTML/CSS/JavaScript, stabilized during Phase 2.
-2. **New application** at the repository root: Next.js App Router, React, TypeScript and Tailwind CSS, introduced during Phase 3.
+2. **New application** at the repository root: Next.js App Router, React, TypeScript and Tailwind CSS.
 
-The new app has a responsive dashboard shell and a health endpoint at `/api/health`. It does not yet connect to a database or authenticate users. The legacy app remains available during the migration.
+The new application now has a PostgreSQL/Prisma data foundation on the Phase 4 branch. Authentication and protected management APIs are intentionally not enabled yet. The legacy app remains available during migration.
 
 ## Stabilized legacy prototype
 
-Phase 2 addressed the initial code-review findings:
 - One canonical allocation engine is used by the UI.
 - Hostel and participant records are validated row by row.
 - Room capacity and duplicate room identifiers are checked.
-- Common gender aliases are normalized; incompatible room categories are not mixed.
 - CSV parsing supports quoted commas, escaped quotes, multiline fields and UTF-8 BOM headers.
 - Completed browser runs are saved for the Results page.
-- Excel upload is clearly disabled until a real XLS/XLSX parser is added.
+- Excel upload is disabled until a real XLS/XLSX parser is added.
 - Regression tests are in `tests/allocation.test.js`.
 
 The legacy app remains browser-only and is not suitable for real student records or production use.
@@ -27,34 +25,34 @@ The legacy app remains browser-only and is not suitable for real student records
 
 - **Full stack:** Next.js App Router + React + TypeScript.
 - **UI:** Tailwind CSS with a responsive dashboard shell.
-- **Database (Phase 4):** PostgreSQL.
-- **ORM and migrations (Phase 4):** Prisma.
+- **Database:** PostgreSQL 16 for local development; production provider not selected.
+- **ORM and migrations:** Prisma ORM 7 with the PostgreSQL driver adapter.
+- **Validation:** Zod schemas at future API boundaries.
 - **Authentication (Phase 5):** Auth.js or an equivalent maintained provider, with server-enforced roles.
-- **Validation:** Zod at API boundaries.
-- **Testing:** Node's built-in test runner for the existing allocation domain, with broader unit and browser tests added as the app grows.
-- **Deployment target:** Vercel plus a managed PostgreSQL provider.
+- **Testing:** Node's built-in test runner for the legacy allocation domain, plus Prisma validation/client generation and Next.js quality checks.
+- **Deployment target:** Vercel plus a managed PostgreSQL provider, subject to production configuration.
 
-This keeps one TypeScript codebase while moving data access, authorization and allocation to the server in controlled stages.
+## Implemented data model
 
-## Core data model (planned)
+- **User:** email, display name, role and active status.
+- **AcademicSession:** unique session code, date range and lifecycle status.
+- **Hostel:** unique code, name, active status and optional institution-defined policy code.
+- **Building:** belongs to a hostel; building codes are unique within a hostel.
+- **Room:** belongs to a building; room codes are unique within a building and capacity must be positive.
+- **Participant:** unique institutional registration number, session, name and optional academic/contact metadata.
+- **AllocationRun:** session, optional creator, algorithm version and lifecycle status.
+- **Allocation:** links run, session, participant and room; uniqueness constraints prevent duplicate participant/session and duplicate bed slots within a run.
+- **AuditEvent:** optional actor, action, entity reference and JSON metadata.
 
-- User: identity, auth-provider reference, role, active status.
-- AcademicSession: year/term and lifecycle status.
-- Hostel: name, category/eligibility rules, active status.
-- Building: belongs to a hostel.
-- Room: building, room number, capacity, occupancy policy, active status.
-- Participant: unique institutional identifier, name, approved eligibility attributes, department, year and only the contact fields actually needed.
-- AllocationRun: session, creator, status, rule-set version, timestamps.
-- Allocation: run, participant, room, bed/slot, status.
-- AuditEvent: actor, action, entity, timestamp and safe change metadata.
-
-Actual fields and eligibility policies will be finalized before migrations. The institution's approved policy must govern eligibility; do not assume gender or any other sensitive attribute is the only or correct allocation criterion.
+The initial migration adds foreign keys, indexes, unique constraints and basic CHECK constraints. Bed number-to-room-capacity enforcement and cross-record allocation consistency will be implemented transactionally in Phase 7.
 
 ## Security and migration principles
 
 - Never commit secrets, production credentials or real student records.
+- Seed data is synthetic and uses reserved `.test` email addresses.
 - Validate input on the server; browser validation is only a usability aid.
-- Enforce authorization on every protected server action/API.
+- Enforce authorization on every protected server action/API before exposing management operations.
 - Prevent over-capacity and duplicate assignments with database constraints and transactions.
 - Keep an audit trail for administrative changes.
+- Do not invent eligibility rules; institution-approved policy governs allocation.
 - Migrate functionality incrementally; do not remove the legacy prototype until replacement workflows are tested.
