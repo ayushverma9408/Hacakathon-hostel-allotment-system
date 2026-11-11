@@ -1,5 +1,4 @@
 import { PrismaPg } from "@prisma/adapter-pg";
-import { Pool } from "pg";
 import { PrismaClient } from "../src/generated/prisma/client";
 
 const connectionString = process.env.DATABASE_URL;
@@ -8,8 +7,8 @@ if (!connectionString) {
   throw new Error("DATABASE_URL must be set before running the seed.");
 }
 
-const pool = new Pool({ connectionString });
-const prisma = new PrismaClient({ adapter: new PrismaPg(pool) });
+const adapter = new PrismaPg({ connectionString });
+const prisma = new PrismaClient({ adapter });
 
 async function main() {
   const session = await prisma.academicSession.upsert({
@@ -65,29 +64,29 @@ async function main() {
     }
   });
 
-  await prisma.participant.upsert({
-    where: { registrationNo: "DEMO-REG-001" },
-    update: {},
-    create: {
+  const demoParticipants = [
+    {
       registrationNo: "DEMO-REG-001",
-      fullName: "Sample Participant One",
-      department: "Computer Science",
-      academicYear: 2,
-      sessionId: session.id
-    }
-  });
-
-  await prisma.participant.upsert({
-    where: { registrationNo: "DEMO-REG-002" },
-    update: {},
-    create: {
+      fullName: "Sample Participant One"
+    },
+    {
       registrationNo: "DEMO-REG-002",
-      fullName: "Sample Participant Two",
-      department: "Computer Science",
-      academicYear: 2,
-      sessionId: session.id
+      fullName: "Sample Participant Two"
     }
-  });
+  ];
+
+  for (const participant of demoParticipants) {
+    await prisma.participant.upsert({
+      where: { registrationNo: participant.registrationNo },
+      update: {},
+      create: {
+        ...participant,
+        department: "Computer Science",
+        academicYear: 2,
+        sessionId: session.id
+      }
+    });
+  }
 
   console.info("Synthetic hostel-allotment seed completed.");
 }
@@ -99,5 +98,4 @@ main()
   })
   .finally(async () => {
     await prisma.$disconnect();
-    await pool.end();
   });
