@@ -10,10 +10,10 @@ Turn the original hostel-allotment prototype into a secure, full-stack hostel al
 
 ## Phase 2 — Stabilize the existing prototype
 - [x] Consolidate allocation into one canonical engine.
-- [x] Validate hostel and participant rows, capacity, gender and duplicate rooms.
+- [x] Validate hostel and participant rows, capacity and duplicate rooms.
 - [x] Improve CSV parsing and persist browser results.
 - [x] Add regression tests and a GitHub Actions workflow.
-- [ ] Confirm the regression workflow passes.
+- [ ] Reconfirm the latest full regression workflow after the new application changes.
 
 See [Phase 2 implementation notes](PHASE-2.md).
 
@@ -22,15 +22,19 @@ See [Phase 2 implementation notes](PHASE-2.md).
 - [x] Add Tailwind CSS and a responsive admin dashboard shell.
 - [x] Add environment placeholders, linting and type-check scripts.
 - [x] Add a health endpoint and foundation documentation.
-- [ ] Confirm lint, typecheck and production build in CI.
+- [ ] Reconfirm the latest full production build in CI.
 
 See [Phase 3 implementation notes](PHASE-3.md).
 
-## Phase 4 — Database and backend
-- Configure PostgreSQL and Prisma.
-- Design users, academic sessions, hostels, buildings, rooms, participants, allocation runs, allocations and audit events.
-- Add migrations, seed data and a typed data-access layer.
-- Implement validated server-side APIs.
+## Phase 4 — Database and backend foundation
+- [x] Add PostgreSQL local development through Docker Compose.
+- [x] Define Prisma models for users, sessions, hostels, buildings, rooms, participants, allocation runs, allocations and audit events.
+- [x] Add a versioned initial SQL migration with relational and basic integrity constraints.
+- [x] Add synthetic seed data and typed server-side data access.
+- [x] Add Zod schemas and a database-aware health endpoint.
+- [ ] Verify Prisma validation, client generation, lint, typecheck and production build in CI.
+
+See [Phase 4 implementation notes](PHASE-4.md).
 
 ## Phase 5 — Authentication and roles
 - Add secure sign-in and session handling.
