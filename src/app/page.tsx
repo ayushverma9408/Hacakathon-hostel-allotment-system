@@ -1,3 +1,7 @@
+import type { ReactNode } from "react";
+import { redirect } from "next/navigation";
+import { getCurrentUser } from "@/lib/authz";
+import { SignOutButton } from "@/components/sign-out-button";
 import {
   Activity,
   ArrowUpRight,
@@ -30,7 +34,10 @@ function SectionLabel({ children }: { children: ReactNode }) {
   return <p className="mb-3 text-[11px] font-semibold uppercase tracking-[.22em] text-slate-500">{children}</p>;
 }
 
-export default function DashboardPage() {
+export default async function DashboardPage() {
+  const currentUser = await getCurrentUser();
+  if (!currentUser) redirect("/login");
+
   return (
     <main className="min-h-screen lg:grid lg:grid-cols-[250px_minmax(0,1fr)]">
       <aside className="border-b border-line bg-[#0b1220]/90 px-5 py-5 lg:sticky lg:top-0 lg:h-screen lg:border-b-0 lg:border-r lg:px-4">
@@ -57,7 +64,7 @@ export default function DashboardPage() {
         </a>
         <div className="mt-10 hidden rounded-2xl border border-line bg-panel/80 p-4 lg:block">
           <div className="mb-3 flex items-center gap-2 text-xs font-semibold text-mint"><ShieldCheck size={15} /> DEVELOPMENT MODE</div>
-          <p className="text-xs leading-5 text-slate-400">This workspace is being prepared. Database and sign-in will be connected in upcoming phases.</p>
+          <p className="text-xs leading-5 text-slate-400">This workspace is being prepared. Your account is signed in. Access to data and actions is controlled by your assigned role.</p>
         </div>
         <p className="mt-8 hidden px-2 text-[10px] text-slate-600 lg:block">ALLOTMENTPRO · FOUNDATION BUILD</p>
       </aside>
@@ -69,8 +76,12 @@ export default function DashboardPage() {
             <h1 className="mt-2 text-2xl font-bold tracking-tight text-white sm:text-3xl">Hostel operations</h1>
             <p className="mt-2 text-sm text-slate-400">A clear view of your hostel inventory and allocation workflow.</p>
           </div>
-          <div className="flex items-center gap-2 rounded-full border border-amber-400/20 bg-amber-400/5 px-3 py-2 text-xs font-medium text-amber-200">
-            <span className="h-2 w-2 rounded-full bg-amber-300" /> Foundation mode
+          <div className="flex flex-wrap items-center gap-3">
+            <div className="text-right">
+              <p className="text-sm font-semibold text-white">{currentUser.name}</p>
+              <p className="text-[10px] font-semibold uppercase tracking-[.16em] text-accent">{currentUser.role}</p>
+            </div>
+            <SignOutButton />
           </div>
         </header>
 
@@ -98,9 +109,9 @@ export default function DashboardPage() {
             <div className="mt-6 space-y-3">
               {[
                 ["01", "Application foundation", "Next.js, TypeScript and dashboard shell", "Complete"],
-                ["02", "Database & data model", "PostgreSQL and Prisma integration", "Next phase"],
-                ["03", "Authentication & roles", "Secure admin and staff access", "Planned"],
-                ["04", "Hostel and participant data", "Import, validation and management", "Planned"]
+                ["02", "Database & data model", "PostgreSQL and Prisma integration", "Complete"],
+                ["03", "Authentication & roles", "Secure sign-in and role checks", "Complete"],
+                ["04", "Hostel and participant data", "Import, validation and management", "Next phase"]
               ].map(([number, title, description, status]) => (
                 <div key={number} className="flex items-start gap-4 rounded-xl border border-line/80 bg-black/10 p-4">
                   <span className="pt-0.5 font-mono text-xs text-accent">{number}</span>
@@ -121,7 +132,7 @@ export default function DashboardPage() {
                 {[
                   ["Web application", "Ready", "text-mint"],
                   ["Database", "Not connected", "text-amber-200"],
-                  ["Authentication", "Not configured", "text-slate-500"],
+                  ["Authentication", "Protected", "text-mint"],
                   ["Allocation API", "Not configured", "text-slate-500"]
                 ].map(([label, value, color]) => (
                   <div key={label} className="flex items-center justify-between gap-3 text-sm">
@@ -133,8 +144,8 @@ export default function DashboardPage() {
 
             <article id="allocation" className="rounded-2xl border border-accent/20 bg-gradient-to-br from-accent/10 to-transparent p-5">
               <div className="flex items-center gap-2 text-accent"><ClipboardList size={17} /><span className="text-xs font-semibold uppercase tracking-wider">Next milestone</span></div>
-              <h2 className="mt-4 text-lg font-semibold text-white">Persistent data layer</h2>
-              <p className="mt-2 text-sm leading-6 text-slate-400">Create the PostgreSQL schema for hostels, rooms, participants, users and allocation runs.</p>
+              <h2 className="mt-4 text-lg font-semibold text-white">Hostel & participant management</h2>
+              <p className="mt-2 text-sm leading-6 text-slate-400">Manage hostel inventory, room capacity and participant records through role-protected workflows.</p>
               <a href="#system-status" className="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-accent hover:text-white">View system status <ArrowUpRight size={15} /></a>
             </article>
           </div>
@@ -142,7 +153,7 @@ export default function DashboardPage() {
 
         <footer className="mt-10 flex flex-wrap items-center justify-between gap-3 border-t border-line pt-5 text-xs text-slate-600">
           <span>AllotmentPro · Full-stack migration</span>
-          <span>Phase 3 · Application foundation</span>
+          <span>Phase 5 · Authentication & access control</span>
         </footer>
       </section>
     </main>
