@@ -14,6 +14,7 @@ jobs:
   quality:
     runs-on: ubuntu-latest
     env:
+      AUTH_SECRET: ci-only-secret-do-not-use-outside-tests
       DATABASE_URL: postgresql://allotment_dev:allotment_dev@localhost:5432/hostel_allotment?schema=public
     steps:
       - name: Check out repository
