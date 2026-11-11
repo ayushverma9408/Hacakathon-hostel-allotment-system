@@ -9,15 +9,21 @@ on:
 jobs:
   quality:
     runs-on: ubuntu-latest
+    env:
+      DATABASE_URL: postgresql://allotment_dev:allotment_dev@localhost:5432/hostel_allotment?schema=public
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
       - name: Install dependencies
         run: npm install --no-audit --no-fund
+      - name: Validate Prisma schema
+        run: npm run db:validate
+      - name: Generate Prisma Client
+        run: npm run db:generate
       - name: Run allocation regression tests
         run: npm run test:allocation
       - name: Lint application
