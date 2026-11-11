@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import { Building2, ShieldCheck } from "lucide-react";
-import { auth } from "@/auth";
+import { getCurrentUser } from "@/lib/authz";
 import { loginAction } from "./actions";
 
 type LoginPageProps = {
@@ -8,8 +8,8 @@ type LoginPageProps = {
 };
 
 export default async function LoginPage({ searchParams }: LoginPageProps) {
-  const session = await auth();
-  if (session?.user) redirect("/");
+  const currentUser = await getCurrentUser();
+  if (currentUser) redirect("/");
 
   const params = await searchParams;
   const hasError = params.error === "invalid";
