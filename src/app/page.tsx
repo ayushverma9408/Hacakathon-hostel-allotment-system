@@ -131,7 +131,7 @@ export default async function DashboardPage() {
               <div className="space-y-4">
                 {[
                   ["Web application", "Ready", "text-mint"],
-                  ["Database", "Not connected", "text-amber-200"],
+                  ["Database", "Connected", "text-mint"],
                   ["Authentication", "Protected", "text-mint"],
                   ["Allocation API", "Not configured", "text-slate-500"]
                 ].map(([label, value, color]) => (
