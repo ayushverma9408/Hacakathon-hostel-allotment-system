@@ -6,18 +6,24 @@ A hostel administration and room-allocation platform being developed in phases. 
 
 - **Legacy prototype:** `hostel_allotment_sys/` — static HTML, CSS and JavaScript, with a stabilized allocation engine.
 - **New application:** `src/` — Next.js App Router, React, strict TypeScript and Tailwind CSS.
-- **Current milestone:** Phase 3 application foundation.
-- **Not yet connected:** PostgreSQL, authentication, persistent records, and production allocation APIs.
+- **Current milestone:** Phase 4 database foundation.
+- **Added in Phase 4:** PostgreSQL 16 development setup, Prisma ORM 7 schema and migration, synthetic seed data, typed data access and database-aware health check.
+- **Not yet enabled:** authentication, protected management APIs, real participant imports and production allocation execution.
 
-See [Phase 3 notes](docs/PHASE-3.md), [architecture](docs/ARCHITECTURE.md), and [roadmap](docs/ROADMAP.md).
+See [Phase 4 notes](docs/PHASE-4.md), [architecture](docs/ARCHITECTURE.md), and [roadmap](docs/ROADMAP.md).
 
-## Run the new application
+## Run locally
 
-Requires Node.js 20.9 or newer.
+Requires Node.js 20.19+ (Node.js 22 recommended), npm and Docker.
 
 ```bash
+cp .env.example .env
+docker compose up -d db
 npm install
-cp .env.example .env.local
+npm run db:validate
+npm run db:generate
+npm run db:migrate:deploy
+npm run db:seed
 npm run dev
 ```
 
@@ -25,9 +31,13 @@ Open [http://localhost:3000](http://localhost:3000).
 
 Health endpoint: [http://localhost:3000/api/health](http://localhost:3000/api/health).
 
+For details and database reset instructions, see [Phase 4 setup](docs/PHASE-4.md).
+
 ## Quality checks
 
 ```bash
+npm run db:validate
+npm run db:generate
 npm run lint
 npm run typecheck
 npm run build
@@ -48,7 +58,7 @@ The legacy prototype currently supports CSV uploads only. Do not upload real stu
 
 ## Environment and security
 
-Copy `.env.example` to `.env.local` for local development. The database and auth values are placeholders for upcoming phases. Never commit real secrets, database credentials, or real student data.
+Copy `.env.example` to `.env` for local development. The Compose database credentials are local-only placeholders. Never commit real secrets, database credentials, or real student data. No hosted database is provisioned by this repository.
 
 ## Development workflow
 
