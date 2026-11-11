@@ -63,8 +63,8 @@ export default async function DashboardPage() {
           <Settings2 size={17} />Configuration
         </a>
         <div className="mt-10 hidden rounded-2xl border border-line bg-panel/80 p-4 lg:block">
-          <div className="mb-3 flex items-center gap-2 text-xs font-semibold text-mint"><ShieldCheck size={15} /> DEVELOPMENT MODE</div>
-          <p className="text-xs leading-5 text-slate-400">This workspace is being prepared. Your account is signed in. Access to data and actions is controlled by your assigned role.</p>
+          <div className="mb-3 flex items-center gap-2 text-xs font-semibold text-mint"><ShieldCheck size={15} /> SECURE WORKSPACE</div>
+          <p className="text-xs leading-5 text-slate-400">Your account is signed in. Access to data and actions is controlled by your assigned role.</p>
         </div>
         <p className="mt-8 hidden px-2 text-[10px] text-slate-600 lg:block">ALLOTMENTPRO · FOUNDATION BUILD</p>
       </aside>
