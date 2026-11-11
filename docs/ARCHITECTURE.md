@@ -7,7 +7,7 @@ The repository contains two application tracks:
 1. **Legacy prototype** under `hostel_allotment_sys/`: static HTML/CSS/JavaScript, stabilized during Phase 2.
 2. **New application** at the repository root: Next.js App Router, React, TypeScript and Tailwind CSS.
 
-The new application now has a PostgreSQL/Prisma data foundation on the Phase 4 branch. Authentication and protected management APIs are intentionally not enabled yet. The legacy app remains available during migration.
+The new application has a PostgreSQL/Prisma data foundation and Auth.js authentication with role-aware server authorization on the Phase 5 branch. The legacy app remains available during migration and is not covered by the new authentication boundary.
 
 ## Stabilized legacy prototype
 
@@ -28,13 +28,13 @@ The legacy app remains browser-only and is not suitable for real student records
 - **Database:** PostgreSQL 16 for local development; production provider not selected.
 - **ORM and migrations:** Prisma ORM 7 with the PostgreSQL driver adapter.
 - **Validation:** Zod schemas at future API boundaries.
-- **Authentication (Phase 5):** Auth.js or an equivalent maintained provider, with server-enforced roles.
+- **Authentication:** Auth.js Credentials provider, encrypted JWT sessions (8-hour maximum), bcrypt password hashes and server-side Admin/Warden/Staff permissions.
 - **Testing:** Node's built-in test runner for the legacy allocation domain, plus Prisma validation/client generation and Next.js quality checks.
 - **Deployment target:** Vercel plus a managed PostgreSQL provider, subject to production configuration.
 
 ## Implemented data model
 
-- **User:** email, display name, role and active status.
+- **User:** email, display name, role, active status and optional bcrypt password hash.
 - **AcademicSession:** unique session code, date range and lifecycle status.
 - **Hostel:** unique code, name, active status and optional institution-defined policy code.
 - **Building:** belongs to a hostel; building codes are unique within a hostel.
@@ -51,7 +51,7 @@ The initial migration adds foreign keys, indexes, unique constraints and basic C
 - Never commit secrets, production credentials or real student records.
 - Seed data is synthetic and uses reserved `.test` email addresses.
 - Validate input on the server; browser validation is only a usability aid.
-- Enforce authorization on every protected server action/API before exposing management operations.
+- Enforce authorization on every protected server action/API using the centralized permission matrix; re-read current roles and account status from PostgreSQL.
 - Prevent over-capacity and duplicate assignments with database constraints and transactions.
 - Keep an audit trail for administrative changes.
 - Do not invent eligibility rules; institution-approved policy governs allocation.
