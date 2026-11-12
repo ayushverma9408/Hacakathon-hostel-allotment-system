@@ -7,7 +7,7 @@ The repository contains two application tracks:
 1. **Legacy prototype** under `hostel_allotment_sys/`: static HTML/CSS/JavaScript, stabilized during Phase 2.
 2. **New application** at the repository root: Next.js App Router, React, TypeScript and Tailwind CSS.
 
-The new application has a PostgreSQL/Prisma data foundation and Auth.js authentication with role-aware server authorization on the Phase 5 branch. The legacy app remains available during migration and is not covered by the new authentication boundary.
+The new application has a PostgreSQL/Prisma data foundation and Auth.js authentication with role-aware server authorization. The legacy app remains available during migration and is not covered by the new app's authentication boundary.
 
 ## Stabilized legacy prototype
 
@@ -27,9 +27,9 @@ The legacy app remains browser-only and is not suitable for real student records
 - **UI:** Tailwind CSS with a responsive dashboard shell.
 - **Database:** PostgreSQL 16 for local development; production provider not selected.
 - **ORM and migrations:** Prisma ORM 7 with the PostgreSQL driver adapter.
-- **Validation:** Zod schemas at future API boundaries.
+- **Validation:** Zod schemas at API boundaries.
 - **Authentication:** Auth.js Credentials provider, encrypted JWT sessions (8-hour maximum), bcrypt password hashes and server-side Admin/Warden/Staff permissions.
-- **Testing:** Node's built-in test runner for the legacy allocation domain, plus Prisma validation/client generation and Next.js quality checks.
+- **Testing:** Node's built-in test runner for allocation, CSV, reports and security domain checks, plus Prisma validation/client generation and Next.js quality checks.
 - **Deployment target:** Vercel plus a managed PostgreSQL provider, subject to production configuration.
 
 ## Implemented data model
@@ -50,7 +50,23 @@ The legacy app remains browser-only and is not suitable for real student records
 - Aggregate reporting endpoints require `reports:read`; participant-level CSV exports require the stricter `reports:export` permission (Admin and Warden only).
 - Occupancy is derived from the latest completed allocation run for the selected session and active room inventory.
 - Allocation and waitlist CSV exports are generated server-side, quote every field, include a UTF-8 BOM and neutralize spreadsheet formula prefixes.
-- Reports do not write allocation records; print output uses browser print styles. XLSX generation remains future work.\n\n## Audit oversight\n\n- The `audit:read` permission is restricted to Admin.\n- The audit API supports bounded pagination and filters by action, entity type, actor and timestamp range.\n- Events are sorted newest-first and returned with actor attribution; events remain visible if an actor account is later deleted.\n- Audit metadata is displayed only in the administrator-only explorer. Management writes create audit events in the same database transaction as the corresponding change where implemented.\n- Audit records are append-only through the current application UI; retention, archival and tamper-evident storage policies are not yet implemented.
+- Reports do not write allocation records; print output uses browser print styles. XLSX generation remains future work.
+
+## Audit oversight
+
+- The `audit:read` permission is restricted to Admin.
+- The audit API supports bounded pagination and filters by action, entity type, actor and timestamp range.
+- Events are sorted newest-first and returned with actor attribution; events remain visible if an actor account is later deleted.
+- Audit metadata is displayed only in the administrator-only explorer. Management writes create audit events in the same database transaction as the corresponding change where implemented.
+- Audit records are append-only through the current application UI; retention, archival and tamper-evident storage policies are not yet implemented.
+
+## Phase 10 security baseline
+
+- Permission definitions are centralized in `src/lib/permissions.ts`; the server-side authorization helper still re-reads the active account and role from PostgreSQL for each protected operation.
+- Credential validation enforces a 14-character minimum and a 72-byte UTF-8 maximum to match bcrypt's effective input limit.
+- Next.js adds frame denial, MIME sniffing protection, referrer and browser-capability policies, same-origin opener isolation and production-only HSTS.
+- The application does not implement distributed rate limiting. Configure login and sensitive write limits at the edge/WAF layer before production.
+- No production environment, managed database, backup restore, external penetration test or compliance certification has been completed.
 
 The initial migration adds foreign keys, indexes, unique constraints and basic CHECK constraints. The Phase 7 planner validates bed numbers against room capacity and commits assignments transactionally. A database-level bed-capacity guard and institution-specific policy checks remain future work.
 
@@ -63,5 +79,4 @@ The initial migration adds foreign keys, indexes, unique constraints and basic C
 - Prevent over-capacity and duplicate assignments with validated planning, database uniqueness constraints and serializable transactions.
 - Do not infer eligibility rules from personal characteristics; institution-approved allocation policy must be explicit.
 - Keep an audit trail for administrative changes.
-- Do not invent eligibility rules; institution-approved policy governs allocation.
 - Migrate functionality incrementally; do not remove the legacy prototype until replacement workflows are tested.
