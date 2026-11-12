@@ -121,7 +121,8 @@ export default async function DashboardPage() {
                 ["02", "Database & data model", "PostgreSQL and Prisma integration", "Complete"],
                 ["03", "Authentication & roles", "Secure sign-in and role checks", "Complete"],
                 ["04", "Hostel and participant data", "Inventory, participant records and CSV import", "Complete"],
-                ["05", "Allocation engine", "FIFO preview, bed assignment and waitlist", "Complete"],\n                ["06", "Reports & analytics", "Occupancy insights, CSV exports and print-ready reports", "Implemented"]
+                ["05", "Allocation engine", "FIFO preview, bed assignment and waitlist", "Complete"],
+                ["06", "Reports & analytics", "Occupancy insights, CSV exports and print-ready reports", "Implemented"]
               ].map(([number, title, description, status]) => (
                 <div key={number} className="flex items-start gap-4 rounded-xl border border-line/80 bg-black/10 p-4">
                   <span className="pt-0.5 font-mono text-xs text-accent">{number}</span>
