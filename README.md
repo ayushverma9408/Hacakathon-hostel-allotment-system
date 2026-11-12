@@ -11,7 +11,8 @@ A hostel administration and room-allocation platform being developed in phases. 
 - **Authentication:** Auth.js credentials sign-in, hashed passwords, protected dashboard and server-side role checks.
 - **Roles:** Admin, Warden and Staff; no public registration.
 - **Management:** role-protected hostel/building/room creation, participant directory, CSV import, search, pagination and audit events.
-- **Allocation:** deterministic FIFO preview, administrator-only commit, persisted assignments, waitlist and run history.\n- **Reports:** session-based hostel/building/room occupancy, allocation and waitlist CSV exports, print-ready reports.
+- **Allocation:** deterministic FIFO preview, administrator-only commit, persisted assignments, waitlist and run history.
+- **Reports:** session-based hostel/building/room occupancy, allocation and waitlist CSV exports, print-ready reports.
 - **Not yet enabled:** institution-specific eligibility policy, reallocation/rollback and production deployment.
 
 See [Phase 8 notes](docs/PHASE-8.md), [Phase 7 notes](docs/PHASE-7.md), [Phase 6 notes](docs/PHASE-6.md), [Phase 5 notes](docs/PHASE-5.md), [Phase 4 database setup](docs/PHASE-4.md), [architecture](docs/ARCHITECTURE.md), and [roadmap](docs/ROADMAP.md).
