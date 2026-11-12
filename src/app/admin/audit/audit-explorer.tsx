@@ -48,7 +48,6 @@ export function AuditExplorer() {
   function applyFilters(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setPage(1);
-    void load();
   }
 
   return (
