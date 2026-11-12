@@ -47,7 +47,7 @@ The legacy app remains browser-only and is not suitable for real student records
 
 ## Reporting
 
-- Reporting endpoints require the `reports:read` permission.
+- Aggregate reporting endpoints require `reports:read`; participant-level CSV exports require the stricter `reports:export` permission (Admin and Warden only).
 - Occupancy is derived from the latest completed allocation run for the selected session and active room inventory.
 - Allocation and waitlist CSV exports are generated server-side, quote every field, include a UTF-8 BOM and neutralize spreadsheet formula prefixes.
 - Reports do not write allocation records; print output uses browser print styles. XLSX generation and a dedicated audit-log explorer remain future work.
