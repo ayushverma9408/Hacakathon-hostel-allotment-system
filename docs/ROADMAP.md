@@ -67,11 +67,22 @@ See [Phase 6 implementation notes](PHASE-6.md).
 See [Phase 7 implementation notes](PHASE-7.md).
 
 ## Phase 8 — Reports and operations
-- Allocation dashboard, occupancy analytics and waitlist management.
-- CSV/XLSX exports and printable reports.
-- Change history and administrative audit logs.
+- [x] Add session-scoped occupancy analytics by hostel, building and room.
+- [x] Add allocation and waitlist CSV exports with spreadsheet-formula protection.
+- [x] Add print-friendly reports and role-protected reporting APIs.
+- [ ] Add XLSX exports and advanced reporting filters.
 
-## Phase 9 — Security, QA and deployment
+See [Phase 8 implementation notes](PHASE-8.md).
+
+## Phase 9 — Audit oversight
+- [x] Add an administrator-only audit trail with actor, action, entity and date filters.
+- [x] Add pagination and actor attribution, including deleted-user history.
+- [x] Expose the audit explorer only to administrators and protect its API server-side.
+- [ ] Add exportable audit records, retention policy and tamper-evident archival.
+
+See [Phase 9 implementation notes](PHASE-9.md).
+
+## Phase 10 — Security, QA and deployment
 - Authorization and input-validation tests.
 - Accessibility, responsive, performance and security review.
 - Production environment setup, database backups and deployment documentation.
