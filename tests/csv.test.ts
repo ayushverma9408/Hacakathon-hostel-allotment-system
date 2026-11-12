@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { parseCsv } from "../src/lib/csv.ts";
+import { parseCsv } from "../src/lib/csv";
 
 test("parses commas inside quoted fields", () => {
   assert.deepEqual(parseCsv('registrationNo,fullName\nR1,"Verma, Ayush"'), [["registrationNo", "fullName"], ["R1", "Verma, Ayush"]]);
