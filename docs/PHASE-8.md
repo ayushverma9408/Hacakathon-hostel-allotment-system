@@ -7,7 +7,8 @@
 - Server-generated allocation-register and waitlist CSV exports.
 - UTF-8 BOM and CRLF output, quoted fields, escaped quotes and spreadsheet-formula neutralization.
 - Print-friendly report layout using browser print.
-- Permission checks and input validation on both report APIs.\n- Participant-level exports are restricted to Admin and Warden; Staff can view aggregate occupancy only.
+- Permission checks and input validation on both report APIs.
+- Participant-level exports are restricted to Admin and Warden; Staff can view aggregate occupancy only.
 
 ## Data and calculation rules
 - Reports never recalculate or mutate allocation results.
