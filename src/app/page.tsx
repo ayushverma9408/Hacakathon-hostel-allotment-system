@@ -20,7 +20,7 @@ const navigation = [
   { label: "Hostels & rooms", href: "/admin/hostels", icon: Building2, active: false },
   { label: "Participants", href: "/admin/participants", icon: Users, active: false },
   { label: "Allocation", href: "/admin/allocations", icon: BedDouble, active: false },
-  { label: "Reports", href: "#reports", icon: FileSpreadsheet, active: false }
+  { label: "Reports", href: "/admin/reports", icon: FileSpreadsheet, active: false }
 ];
 
 
@@ -75,7 +75,7 @@ export default async function DashboardPage() {
           <div className="mb-3 flex items-center gap-2 text-xs font-semibold text-mint"><ShieldCheck size={15} /> SECURE WORKSPACE</div>
           <p className="text-xs leading-5 text-slate-400">Your account is signed in. Access to data and actions is controlled by your assigned role.</p>
         </div>
-        <p className="mt-8 hidden px-2 text-[10px] text-slate-600 lg:block">ALLOTMENTPRO · ALLOCATION WORKSPACE</p>
+        <p className="mt-8 hidden px-2 text-[10px] text-slate-600 lg:block">ALLOTMENTPRO · REPORTING WORKSPACE</p>
       </aside>
 
       <section id="overview" className="min-w-0 px-5 py-7 sm:px-8 lg:px-10 lg:py-10">
@@ -121,7 +121,7 @@ export default async function DashboardPage() {
                 ["02", "Database & data model", "PostgreSQL and Prisma integration", "Complete"],
                 ["03", "Authentication & roles", "Secure sign-in and role checks", "Complete"],
                 ["04", "Hostel and participant data", "Inventory, participant records and CSV import", "Complete"],
-                ["05", "Allocation engine", "FIFO preview, bed assignment and waitlist", "Implemented"]
+                ["05", "Allocation engine", "FIFO preview, bed assignment and waitlist", "Complete"],\n                ["06", "Reports & analytics", "Occupancy insights, CSV exports and print-ready reports", "Implemented"]
               ].map(([number, title, description, status]) => (
                 <div key={number} className="flex items-start gap-4 rounded-xl border border-line/80 bg-black/10 p-4">
                   <span className="pt-0.5 font-mono text-xs text-accent">{number}</span>
@@ -163,7 +163,7 @@ export default async function DashboardPage() {
 
         <footer className="mt-10 flex flex-wrap items-center justify-between gap-3 border-t border-line pt-5 text-xs text-slate-600">
           <span>AllotmentPro · Full-stack migration</span>
-          <span>Phase 7 · Allocation engine</span>
+          <span>Phase 8 · Reports & analytics</span>
         </footer>
       </section>
     </main>
