@@ -17,8 +17,8 @@ import {
 
 const navigation = [
   { label: "Overview", href: "#overview", icon: LayoutDashboard, active: true },
-  { label: "Hostels & rooms", href: "#hostels", icon: Building2, active: false },
-  { label: "Participants", href: "#participants", icon: Users, active: false },
+  { label: "Hostels & rooms", href: "/admin/hostels", icon: Building2, active: false },
+  { label: "Participants", href: "/admin/participants", icon: Users, active: false },
   { label: "Allocation", href: "#allocation", icon: BedDouble, active: false },
   { label: "Reports", href: "#reports", icon: FileSpreadsheet, active: false }
 ];
@@ -37,6 +37,21 @@ function SectionLabel({ children }: { children: ReactNode }) {
 export default async function DashboardPage() {
   const currentUser = await getCurrentUser();
   if (!currentUser) redirect("/login");
+
+  const { getPrisma } = await import("@/lib/prisma");
+  const prisma = getPrisma();
+  const [hostelCount, participantCount, roomCapacity, allocationRuns] = await Promise.all([
+    prisma.hostel.count({ where: { isActive: true } }),
+    prisma.participant.count({ where: { status: "ACTIVE" } }),
+    prisma.room.aggregate({ where: { isActive: true }, _sum: { capacity: true } }),
+    prisma.allocationRun.count()
+  ]);
+  const metrics = [
+    { label: "Registered hostels", value: String(hostelCount), note: "Active hostels", icon: Building2 },
+    { label: "Participants", value: participantCount.toLocaleString(), note: "Active participant records", icon: Users },
+    { label: "Available bed capacity", value: String(roomCapacity._sum.capacity ?? 0), note: "Configured active room capacity", icon: BedDouble },
+    { label: "Allocation runs", value: String(allocationRuns), note: "Recorded allocation runs", icon: Activity }
+  ];
 
   return (
     <main className="min-h-screen lg:grid lg:grid-cols-[250px_minmax(0,1fr)]">
@@ -105,13 +120,13 @@ export default async function DashboardPage() {
           <article className="rounded-2xl border border-line bg-panel/70 p-5 sm:p-6">
             <SectionLabel>Getting started</SectionLabel>
             <h2 className="text-lg font-semibold text-white">Build your allocation workspace</h2>
-            <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-400">The new application shell is ready. The next phases will connect persistent data, administrator access, hostel inventory, and the allocation engine.</p>
+            <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-400">Hostel inventory and participant records are now connected to PostgreSQL. Allocation workflows and reporting will build on this verified data foundation.</p>
             <div className="mt-6 space-y-3">
               {[
                 ["01", "Application foundation", "Next.js, TypeScript and dashboard shell", "Complete"],
                 ["02", "Database & data model", "PostgreSQL and Prisma integration", "Complete"],
                 ["03", "Authentication & roles", "Secure sign-in and role checks", "Complete"],
-                ["04", "Hostel and participant data", "Import, validation and management", "Next phase"]
+                ["04", "Hostel and participant data", "Inventory, participant records and CSV import", "Complete"]
               ].map(([number, title, description, status]) => (
                 <div key={number} className="flex items-start gap-4 rounded-xl border border-line/80 bg-black/10 p-4">
                   <span className="pt-0.5 font-mono text-xs text-accent">{number}</span>
@@ -144,16 +159,16 @@ export default async function DashboardPage() {
 
             <article id="allocation" className="rounded-2xl border border-accent/20 bg-gradient-to-br from-accent/10 to-transparent p-5">
               <div className="flex items-center gap-2 text-accent"><ClipboardList size={17} /><span className="text-xs font-semibold uppercase tracking-wider">Next milestone</span></div>
-              <h2 className="mt-4 text-lg font-semibold text-white">Hostel & participant management</h2>
-              <p className="mt-2 text-sm leading-6 text-slate-400">Manage hostel inventory, room capacity and participant records through role-protected workflows.</p>
-              <a href="#system-status" className="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-accent hover:text-white">View system status <ArrowUpRight size={15} /></a>
+              <h2 className="mt-4 text-lg font-semibold text-white">Allocation workflow</h2>
+              <p className="mt-2 text-sm leading-6 text-slate-400">The next phase will connect participant records to room capacity and controlled allocation runs.</p>
+              <a href="/admin/hostels" className="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-accent hover:text-white">Open inventory <ArrowUpRight size={15} /></a>
             </article>
           </div>
         </div>
 
         <footer className="mt-10 flex flex-wrap items-center justify-between gap-3 border-t border-line pt-5 text-xs text-slate-600">
           <span>AllotmentPro · Full-stack migration</span>
-          <span>Phase 5 · Authentication & access control</span>
+          <span>Phase 6 · Hostel & participant management</span>
         </footer>
       </section>
     </main>
