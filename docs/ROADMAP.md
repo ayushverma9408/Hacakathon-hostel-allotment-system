@@ -55,11 +55,16 @@ See [Phase 5 implementation notes](PHASE-5.md).
 
 See [Phase 6 implementation notes](PHASE-6.md).
 
-## Phase 7 — Production allocation engine
-- Move deterministic allocation to the server.
-- Support configurable eligibility rules and priorities.
-- Prevent over-capacity, duplicate assignments and cross-category mismatches.
-- Add preview, confirmation, waitlists and reproducible allocation runs.
+## Phase 7 — Allocation engine
+- [x] Move deterministic FIFO allocation planning to the server.
+- [x] Add read-only preview and administrator-only transactional commit.
+- [x] Persist bed assignments, waitlist entries and allocation run history.
+- [x] Prevent duplicate participant/session assignments and duplicate bed slots within a run.
+- [x] Add deterministic allocation tests and CI coverage.
+- [ ] Implement institution-approved eligibility, priority and accommodation policy.
+- [ ] Add reallocation, rollback and waitlist promotion.
+
+See [Phase 7 implementation notes](PHASE-7.md).
 
 ## Phase 8 — Reports and operations
 - Allocation dashboard, occupancy analytics and waitlist management.
