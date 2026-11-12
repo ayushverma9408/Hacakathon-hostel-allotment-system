@@ -49,7 +49,7 @@ export default async function DashboardPage() {
   const metrics = [
     { label: "Registered hostels", value: String(hostelCount), note: "Active hostels", icon: Building2 },
     { label: "Participants", value: participantCount.toLocaleString(), note: "Active participant records", icon: Users },
-    { label: "Available bed capacity", value: String(roomCapacity._sum.capacity ?? 0), note: "Configured active room capacity", icon: BedDouble },
+    { label: "Configured bed capacity", value: String(roomCapacity._sum.capacity ?? 0), note: "Configured active room capacity", icon: BedDouble },
     { label: "Allocation runs", value: String(allocationRuns), note: "Recorded allocation runs", icon: Activity }
   ];
 
