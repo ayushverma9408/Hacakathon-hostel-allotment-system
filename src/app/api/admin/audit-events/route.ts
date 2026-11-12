@@ -42,7 +42,7 @@ export async function GET(request: NextRequest) {
       }
     }),
     prisma.auditEvent.count({ where }),
-    prisma.user.findMany({ where: { auditEvents: { some: {} }, isActive: true }, orderBy: { name: "asc" }, select: { id: true, name: true, role: true } })
+    prisma.user.findMany({ where: { auditEvents: { some: {} } }, orderBy: { name: "asc" }, select: { id: true, name: true, role: true } })
   ]);
 
   return NextResponse.json({ events, actors, pagination: { page, limit, total, pages: Math.ceil(total / limit) } }, { headers: { "Cache-Control": "private, no-store" } });
