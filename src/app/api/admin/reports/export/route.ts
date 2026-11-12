@@ -32,7 +32,7 @@ export async function GET(request: NextRequest) {
         orderBy: [{ room: { building: { hostel: { code: "asc" } } } }, { room: { building: { code: "asc" } } }, { room: { code: "asc" } }, { bedNumber: "asc" }],
         select: {
           participant: { select: { registrationNo: true, fullName: true, department: true, academicYear: true } },
-          room: { select: { code: true, building: { select: { code: true, name: true, hostel: { select: { code: true, name: true } } } } },
+          room: { select: { code: true, building: { select: { code: true, name: true, hostel: { select: { code: true, name: true } } } } } },
           bedNumber: true
         }
       },
