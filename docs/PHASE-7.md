@@ -3,7 +3,7 @@
 ## Delivered
 
 - Added a deterministic server-side FIFO allocation planner (fifo-v1).
-- Participants are ordered by account registration timestamp, then registration number as a stable tie-breaker.
+- Participants are ordered by participant-record creation timestamp, then registration number as a stable tie-breaker. The current schema does not store an application-submission timestamp, so this is a technical baseline rather than a verified first-application timestamp.
 - Active rooms are traversed by hostel code, building code and room code; each room expands into bed numbers from 1 through capacity.
 - Added preview endpoint. It returns proposed assignments, waitlist positions and capacity statistics without writing records.
 - Added administrator-only commit endpoint. It recomputes the plan on the server and writes the run, assignments, waitlist and audit event in one Serializable database transaction.
