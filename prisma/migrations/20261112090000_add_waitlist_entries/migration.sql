@@ -21,3 +21,9 @@ ALTER TABLE "WaitlistEntry" ADD CONSTRAINT "WaitlistEntry_runId_fkey"
   FOREIGN KEY ("runId") REFERENCES "AllocationRun"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 ALTER TABLE "WaitlistEntry" ADD CONSTRAINT "WaitlistEntry_participantId_fkey"
   FOREIGN KEY ("participantId") REFERENCES "Participant"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- Only one completed allocation run may exist per academic session.
+-- This is a database-level guard against simultaneous commit requests.
+CREATE UNIQUE INDEX "AllocationRun_one_completed_per_session_key"
+  ON "AllocationRun"("sessionId")
+  WHERE "status" = 'COMPLETED';
