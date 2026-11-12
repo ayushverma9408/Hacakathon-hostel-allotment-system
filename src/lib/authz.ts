@@ -10,7 +10,9 @@ export type Permission =
   | "participants:manage"
   | "allocations:read"
   | "allocations:manage"
-  | "reports:read";
+  | "reports:read"
+  | "reports:export"
+  | "audit:read";
 
 const rolePermissions: Record<UserRole, Permission[]> = {
   ADMIN: [
@@ -21,7 +23,9 @@ const rolePermissions: Record<UserRole, Permission[]> = {
     "participants:manage",
     "allocations:read",
     "allocations:manage",
-    "reports:read"
+    "reports:read",
+    "reports:export",
+    "audit:read"
   ],
   WARDEN: [
     "hostels:read",
@@ -29,7 +33,8 @@ const rolePermissions: Record<UserRole, Permission[]> = {
     "participants:read",
     "participants:manage",
     "allocations:read",
-    "reports:read"
+    "reports:read",
+    "reports:export"
   ],
   STAFF: [
     "hostels:read",

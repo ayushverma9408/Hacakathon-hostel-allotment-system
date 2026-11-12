@@ -10,5 +10,5 @@ export default async function ReportsPage() {
     orderBy: { startsAt: "desc" },
     select: { id: true, code: true, name: true, status: true }
   });
-  return <ReportCenter sessions={sessions} />;
+  return <ReportCenter sessions={sessions} canExport={user.role !== "STAFF"} />;
 }

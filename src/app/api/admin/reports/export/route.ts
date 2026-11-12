@@ -8,8 +8,8 @@ const idSchema = z.string().cuid();
 const typeSchema = z.enum(["allocations", "waitlist"]);
 
 export async function GET(request: NextRequest) {
-  const access = await requirePermission("reports:read");
-  if (!access.ok) return NextResponse.json({ error: access.status === 401 ? "Authentication required." : "Insufficient permissions." }, { status: access.status });
+  const access = await requirePermission("reports:export");
+  if (!access.ok) return NextResponse.json({ error: access.status === 401 ? "Authentication required." : "Only administrators and wardens can export participant-level reports." }, { status: access.status });
 
   const params = request.nextUrl.searchParams;
   const sessionId = params.get("sessionId");
@@ -32,7 +32,7 @@ export async function GET(request: NextRequest) {
         orderBy: [{ room: { building: { hostel: { code: "asc" } } } }, { room: { building: { code: "asc" } } }, { room: { code: "asc" } }, { bedNumber: "asc" }],
         select: {
           participant: { select: { registrationNo: true, fullName: true, department: true, academicYear: true } },
-          room: { select: { code: true, building: { select: { code: true, name: true, hostel: { select: { code: true, name: true } } } } },
+          room: { select: { code: true, building: { select: { code: true, name: true, hostel: { select: { code: true, name: true } } } } } },
           bedNumber: true
         }
       },

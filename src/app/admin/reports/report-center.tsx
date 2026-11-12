@@ -14,7 +14,7 @@ type Report = {
   hostels: Hostel[];
 };
 
-export function ReportCenter({ sessions }: { sessions: Session[] }) {
+export function ReportCenter({ sessions, canExport }: { sessions: Session[]; canExport: boolean }) {
   const [sessionId, setSessionId] = useState(sessions[0]?.id ?? "");
   const [report, setReport] = useState<Report | null>(null);
   const [loading, setLoading] = useState(false);
@@ -54,7 +54,7 @@ export function ReportCenter({ sessions }: { sessions: Session[] }) {
             {sessions.map((session) => <option key={session.id} value={session.id}>{session.code} — {session.name} ({session.status.toLowerCase()})</option>)}
           </select>
         </label>
-        {report?.run && <div className="mt-4 flex flex-wrap gap-3">
+        {report?.run && canExport && <div className="mt-4 flex flex-wrap gap-3">
           <a className="action" href={exportUrl("allocations")}>Download allocation CSV</a>
           <a className="action" href={exportUrl("waitlist")}>Download waitlist CSV</a>
         </div>}

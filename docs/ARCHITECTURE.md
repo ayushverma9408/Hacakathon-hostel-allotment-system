@@ -47,10 +47,10 @@ The legacy app remains browser-only and is not suitable for real student records
 
 ## Reporting
 
-- Reporting endpoints require the `reports:read` permission.
+- Aggregate reporting endpoints require `reports:read`; participant-level CSV exports require the stricter `reports:export` permission (Admin and Warden only).
 - Occupancy is derived from the latest completed allocation run for the selected session and active room inventory.
 - Allocation and waitlist CSV exports are generated server-side, quote every field, include a UTF-8 BOM and neutralize spreadsheet formula prefixes.
-- Reports do not write allocation records; print output uses browser print styles. XLSX generation and a dedicated audit-log explorer remain future work.
+- Reports do not write allocation records; print output uses browser print styles. XLSX generation remains future work.\n\n## Audit oversight\n\n- The `audit:read` permission is restricted to Admin.\n- The audit API supports bounded pagination and filters by action, entity type, actor and timestamp range.\n- Events are sorted newest-first and returned with actor attribution; events remain visible if an actor account is later deleted.\n- Audit metadata is displayed only in the administrator-only explorer. Management writes create audit events in the same database transaction as the corresponding change where implemented.\n- Audit records are append-only through the current application UI; retention, archival and tamper-evident storage policies are not yet implemented.
 
 The initial migration adds foreign keys, indexes, unique constraints and basic CHECK constraints. The Phase 7 planner validates bed numbers against room capacity and commits assignments transactionally. A database-level bed-capacity guard and institution-specific policy checks remain future work.
 
