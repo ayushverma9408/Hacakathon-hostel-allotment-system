@@ -19,7 +19,7 @@ const navigation = [
   { label: "Overview", href: "#overview", icon: LayoutDashboard, active: true },
   { label: "Hostels & rooms", href: "/admin/hostels", icon: Building2, active: false },
   { label: "Participants", href: "/admin/participants", icon: Users, active: false },
-  { label: "Allocation", href: "#allocation", icon: BedDouble, active: false },
+  { label: "Allocation", href: "/admin/allocations", icon: BedDouble, active: false },
   { label: "Reports", href: "#reports", icon: FileSpreadsheet, active: false }
 ];
 
@@ -75,7 +75,7 @@ export default async function DashboardPage() {
           <div className="mb-3 flex items-center gap-2 text-xs font-semibold text-mint"><ShieldCheck size={15} /> SECURE WORKSPACE</div>
           <p className="text-xs leading-5 text-slate-400">Your account is signed in. Access to data and actions is controlled by your assigned role.</p>
         </div>
-        <p className="mt-8 hidden px-2 text-[10px] text-slate-600 lg:block">ALLOTMENTPRO · FOUNDATION BUILD</p>
+        <p className="mt-8 hidden px-2 text-[10px] text-slate-600 lg:block">ALLOTMENTPRO · ALLOCATION WORKSPACE</p>
       </aside>
 
       <section id="overview" className="min-w-0 px-5 py-7 sm:px-8 lg:px-10 lg:py-10">
@@ -120,7 +120,8 @@ export default async function DashboardPage() {
                 ["01", "Application foundation", "Next.js, TypeScript and dashboard shell", "Complete"],
                 ["02", "Database & data model", "PostgreSQL and Prisma integration", "Complete"],
                 ["03", "Authentication & roles", "Secure sign-in and role checks", "Complete"],
-                ["04", "Hostel and participant data", "Inventory, participant records and CSV import", "Complete"]
+                ["04", "Hostel and participant data", "Inventory, participant records and CSV import", "Complete"],
+                ["05", "Allocation engine", "FIFO preview, bed assignment and waitlist", "Implemented"]
               ].map(([number, title, description, status]) => (
                 <div key={number} className="flex items-start gap-4 rounded-xl border border-line/80 bg-black/10 p-4">
                   <span className="pt-0.5 font-mono text-xs text-accent">{number}</span>
@@ -142,7 +143,7 @@ export default async function DashboardPage() {
                   ["Web application", "Ready", "text-mint"],
                   ["Database", "Connected", "text-mint"],
                   ["Authentication", "Protected", "text-mint"],
-                  ["Allocation API", "Not configured", "text-slate-500"]
+                  ["Allocation API", "Preview & commit enabled", "text-mint"]
                 ].map(([label, value, color]) => (
                   <div key={label} className="flex items-center justify-between gap-3 text-sm">
                     <span className="text-slate-400">{label}</span><span className={`text-xs font-medium ${color}`}>{value}</span>
@@ -154,15 +155,15 @@ export default async function DashboardPage() {
             <article id="allocation" className="rounded-2xl border border-accent/20 bg-gradient-to-br from-accent/10 to-transparent p-5">
               <div className="flex items-center gap-2 text-accent"><ClipboardList size={17} /><span className="text-xs font-semibold uppercase tracking-wider">Next milestone</span></div>
               <h2 className="mt-4 text-lg font-semibold text-white">Allocation workflow</h2>
-              <p className="mt-2 text-sm leading-6 text-slate-400">The next phase will connect participant records to room capacity and controlled allocation runs.</p>
-              <a href="/admin/hostels" className="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-accent hover:text-white">Open inventory <ArrowUpRight size={15} /></a>
+              <p className="mt-2 text-sm leading-6 text-slate-400">Preview participant-to-bed assignments, review the waitlist, and commit a run with administrator access.</p>
+              <a href="/admin/allocations" className="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-accent hover:text-white">Open allocation centre <ArrowUpRight size={15} /></a>
             </article>
           </div>
         </div>
 
         <footer className="mt-10 flex flex-wrap items-center justify-between gap-3 border-t border-line pt-5 text-xs text-slate-600">
           <span>AllotmentPro · Full-stack migration</span>
-          <span>Phase 6 · Hostel & participant management</span>
+          <span>Phase 7 · Allocation engine</span>
         </footer>
       </section>
     </main>
