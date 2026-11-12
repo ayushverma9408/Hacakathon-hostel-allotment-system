@@ -47,9 +47,13 @@ See [Phase 4 implementation notes](PHASE-4.md).
 See [Phase 5 implementation notes](PHASE-5.md).
 
 ## Phase 6 — Hostel and participant management
-- CRUD for hostels, buildings, rooms and capacity.
-- Participant import with column mapping, validation, duplicate detection and error preview.
-- Search, filters, bulk actions and audit history.
+- [x] Add protected hostel, building and room creation with capacity validation.
+- [x] Add participant registration, editing, deactivation, search and pagination.
+- [x] Add CSV import with quoted-field parsing, validation and duplicate handling.
+- [x] Record audit events for management mutations and imports.
+- [ ] Add hostel/building/room editing and deactivation, CSV dry-run preview and configurable header mapping.
+
+See [Phase 6 implementation notes](PHASE-6.md).
 
 ## Phase 7 — Production allocation engine
 - Move deterministic allocation to the server.
