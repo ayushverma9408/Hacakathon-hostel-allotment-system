@@ -23,12 +23,6 @@ const navigation = [
   { label: "Reports", href: "#reports", icon: FileSpreadsheet, active: false }
 ];
 
-const metrics = [
-  { label: "Registered hostels", value: "—", note: "Database setup pending", icon: Building2 },
-  { label: "Participants", value: "—", note: "No records imported", icon: Users },
-  { label: "Available beds", value: "—", note: "Room inventory pending", icon: BedDouble },
-  { label: "Allocation runs", value: "0", note: "No runs in this workspace", icon: Activity }
-];
 
 function SectionLabel({ children }: { children: ReactNode }) {
   return <p className="mb-3 text-[11px] font-semibold uppercase tracking-[.22em] text-slate-500">{children}</p>;
