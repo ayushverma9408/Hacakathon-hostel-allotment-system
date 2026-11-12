@@ -33,6 +33,8 @@ jobs:
         run: npm run test:allocation
       - name: Run CSV parser regression tests
         run: npm run test:csv
+      - name: Run allocation engine tests
+        run: npm run test:allocation-engine
       - name: Lint application
         run: npm run lint
       - name: Type-check application
