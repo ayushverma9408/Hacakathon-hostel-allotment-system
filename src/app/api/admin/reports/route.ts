@@ -91,13 +91,14 @@ export async function GET(request: NextRequest) {
   const assigned = run?.allocations.length ?? 0;
   const waitlisted = run?.waitlistEntries.length ?? 0;
   const capacity = hostels.reduce((sum, hostel) => sum + hostel.capacity, 0);
+  const occupiedInActiveInventory = hostels.reduce((sum, hostel) => sum + hostel.occupied, 0);
   return NextResponse.json({
     session,
     run: run ? { id: run.id, algorithmVersion: run.algorithmVersion, completedAt: run.completedAt } : null,
     summary: {
       assigned, waitlisted, bedCapacity: capacity,
-      vacantBeds: Math.max(0, capacity - assigned),
-      occupancyPercent: capacity ? Math.round((assigned / capacity) * 1000) / 10 : 0
+      vacantBeds: Math.max(0, capacity - occupiedInActiveInventory),
+      occupancyPercent: capacity ? Math.round((occupiedInActiveInventory / capacity) * 1000) / 10 : 0
     },
     hostels
   });
