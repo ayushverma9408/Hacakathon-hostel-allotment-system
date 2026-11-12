@@ -124,6 +124,7 @@ model Participant {
   updatedAt      DateTime           @updatedAt
   session        AcademicSession    @relation(fields: [sessionId], references: [id], onDelete: Restrict)
   allocations    Allocation[]
+  waitlistEntries WaitlistEntry[]
 
   @@index([sessionId, status])
   @@index([fullName])
@@ -141,6 +142,7 @@ model AllocationRun {
   session         AcademicSession     @relation(fields: [sessionId], references: [id], onDelete: Restrict)
   createdBy       User?               @relation("RunCreator", fields: [createdById], references: [id], onDelete: SetNull)
   allocations     Allocation[]
+  waitlistEntries WaitlistEntry[]
 
   @@index([sessionId, status, createdAt])
 }
@@ -177,4 +179,20 @@ model AuditEvent {
 
   @@index([entityType, entityId, createdAt])
   @@index([actorId, createdAt])
+}
+
+
+model WaitlistEntry {
+  id            String        @id @default(cuid())
+  runId         String
+  participantId String
+  position      Int
+  reason        String        @default("No available bed at allocation time.") @db.VarChar(240)
+  createdAt     DateTime      @default(now())
+  run           AllocationRun @relation(fields: [runId], references: [id], onDelete: Restrict)
+  participant   Participant  @relation(fields: [participantId], references: [id], onDelete: Restrict)
+
+  @@unique([runId, participantId])
+  @@unique([runId, position])
+  @@index([participantId, createdAt])
 }
