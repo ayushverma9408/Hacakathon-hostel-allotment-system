@@ -43,7 +43,7 @@ The legacy app remains browser-only and is not suitable for real student records
 - **AllocationRun:** session, optional creator, algorithm version and lifecycle status.
 - **Allocation:** links run, session, participant and room; uniqueness constraints prevent duplicate participant/session and duplicate bed slots within a run.
 - **WaitlistEntry:** links a run and participant with a stable queue position and reason; waitlisted people do not receive a fictitious room/bed assignment.
-- **AuditEvent:** optional actor, action, entity reference and JSON metadata.
+- **AuditEvent:** optional actor, action, entity reference and JSON metadata.\n\n## Reporting\n\n- Reporting endpoints require the `reports:read` permission.\n- Occupancy is derived from the latest completed allocation run for the selected session and active room inventory.\n- Allocation and waitlist CSV exports are generated server-side, quote every field, include a UTF-8 BOM and neutralize spreadsheet formula prefixes.\n- Reports do not write allocation records; print output uses browser print styles. XLSX generation and a dedicated audit-log explorer remain future work.
 
 The initial migration adds foreign keys, indexes, unique constraints and basic CHECK constraints. The Phase 7 planner validates bed numbers against room capacity and commits assignments transactionally. A database-level bed-capacity guard and institution-specific policy checks remain future work.
 
