@@ -31,6 +31,8 @@ jobs:
         run: npm run db:generate
       - name: Run allocation regression tests
         run: npm run test:allocation
+      - name: Run CSV parser regression tests
+        run: npm run test:csv
       - name: Lint application
         run: npm run lint
       - name: Type-check application
