@@ -65,6 +65,7 @@ export default async function DashboardPage() {
               </a>
             );
           })}
+          {currentUser.role === "ADMIN" && <a href="/admin/audit" className="flex shrink-0 items-center gap-3 rounded-xl px-3 py-3 text-sm text-slate-400 transition hover:bg-white/5 hover:text-white"><ShieldCheck size={17} />Audit trail</a>}
         </nav>
 
         <div className="mt-10 hidden lg:block"><SectionLabel>System</SectionLabel></div>
@@ -122,7 +123,8 @@ export default async function DashboardPage() {
                 ["03", "Authentication & roles", "Secure sign-in and role checks", "Complete"],
                 ["04", "Hostel and participant data", "Inventory, participant records and CSV import", "Complete"],
                 ["05", "Allocation engine", "FIFO preview, bed assignment and waitlist", "Complete"],
-                ["06", "Reports & analytics", "Occupancy insights, CSV exports and print-ready reports", "Implemented"]
+                ["06", "Reports & analytics", "Occupancy insights, CSV exports and print-ready reports", "Complete"],
+                ["07", "Audit oversight", "Administrator audit trail and event filtering", "Implemented"]
               ].map(([number, title, description, status]) => (
                 <div key={number} className="flex items-start gap-4 rounded-xl border border-line/80 bg-black/10 p-4">
                   <span className="pt-0.5 font-mono text-xs text-accent">{number}</span>
@@ -164,7 +166,7 @@ export default async function DashboardPage() {
 
         <footer className="mt-10 flex flex-wrap items-center justify-between gap-3 border-t border-line pt-5 text-xs text-slate-600">
           <span>AllotmentPro · Full-stack migration</span>
-          <span>Phase 8 · Reports & analytics</span>
+          <span>Phase 9 · Audit oversight</span>
         </footer>
       </section>
     </main>
