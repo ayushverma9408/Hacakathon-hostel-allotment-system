@@ -35,6 +35,8 @@ jobs:
         run: npm run test:csv
       - name: Run allocation engine tests
         run: npm run test:allocation-engine
+      - name: Run report export tests
+        run: npm run test:reports
       - name: Lint application
         run: npm run lint
       - name: Type-check application
