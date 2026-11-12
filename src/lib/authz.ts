@@ -1,48 +1,9 @@
+import "server-only";
 import { auth } from "@/auth";
 import { getPrisma } from "@/lib/prisma";
-import type { UserRole } from "@/generated/prisma/client";
+import { hasPermission, type Permission } from "@/lib/permissions";
 
-export type Permission =
-  | "users:read"
-  | "hostels:read"
-  | "hostels:manage"
-  | "participants:read"
-  | "participants:manage"
-  | "allocations:read"
-  | "allocations:manage"
-  | "reports:read"
-  | "reports:export"
-  | "audit:read";
-
-const rolePermissions: Record<UserRole, Permission[]> = {
-  ADMIN: [
-    "users:read",
-    "hostels:read",
-    "hostels:manage",
-    "participants:read",
-    "participants:manage",
-    "allocations:read",
-    "allocations:manage",
-    "reports:read",
-    "reports:export",
-    "audit:read"
-  ],
-  WARDEN: [
-    "hostels:read",
-    "hostels:manage",
-    "participants:read",
-    "participants:manage",
-    "allocations:read",
-    "reports:read",
-    "reports:export"
-  ],
-  STAFF: [
-    "hostels:read",
-    "participants:read",
-    "allocations:read",
-    "reports:read"
-  ]
-};
+export type { Permission } from "@/lib/permissions";
 
 export async function getCurrentUser() {
   const session = await auth();
@@ -71,7 +32,7 @@ export async function requirePermission(permission: Permission) {
     return { ok: false as const, status: 401 as const };
   }
 
-  if (!rolePermissions[user.role].includes(permission)) {
+  if (!hasPermission(user.role, permission)) {
     return { ok: false as const, status: 403 as const };
   }
 

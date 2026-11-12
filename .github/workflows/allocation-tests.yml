@@ -37,6 +37,8 @@ jobs:
         run: npm run test:allocation-engine
       - name: Run report export tests
         run: npm run test:reports
+      - name: Run security regression tests
+        run: npm run test:security
       - name: Lint application
         run: npm run lint
       - name: Type-check application

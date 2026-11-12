@@ -1,14 +1,10 @@
+import "server-only";
 import NextAuth from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 import { compare } from "bcryptjs";
-import { z } from "zod";
 import { getPrisma } from "@/lib/prisma";
+import { credentialsSchema } from "@/lib/validation/auth";
 import { authConfig } from "./auth.config";
-
-const credentialsSchema = z.object({
-  email: z.string().trim().email().max(254),
-  password: z.string().min(14).max(128)
-});
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   ...authConfig,

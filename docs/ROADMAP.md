@@ -83,9 +83,16 @@ See [Phase 8 implementation notes](PHASE-8.md).
 See [Phase 9 implementation notes](PHASE-9.md).
 
 ## Phase 10 — Security, QA and deployment
-- Authorization and input-validation tests.
-- Accessibility, responsive, performance and security review.
-- Production environment setup, database backups and deployment documentation.
+- [x] Centralize and unit-test the Admin/Warden/Staff permission matrix.
+- [x] Validate credentials and reject bcrypt inputs exceeding 72 UTF-8 bytes.
+- [x] Add baseline security headers and production-only HSTS.
+- [x] Add security regression tests to CI.
+- [x] Document production secrets, migrations, backups, HTTPS and edge rate-limiting requirements.
+- [ ] Complete browser accessibility, responsive, load and end-to-end security testing.
+- [ ] Provision and verify a production database, backup restore and deployment environment.
+- [ ] Add distributed rate limiting, MFA/SSO, CSP nonce support and external security review.
+
+See [Phase 10 implementation notes](PHASE-10.md).
 
 ## Working agreement
 - Complete one phase at a time.
