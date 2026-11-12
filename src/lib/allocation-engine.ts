@@ -51,7 +51,7 @@ export type AllocationPlan = {
 
 /**
  * Deterministic first-in, first-out allocation.
- * Participant creation time is the primary order; registration number breaks ties.
+ * Participant-record creation time is the primary order; registration number breaks ties.
  * Rooms are traversed by hostel, building, then room code. No personal/sensitive
  * attributes are inferred or used as allocation criteria.
  */
