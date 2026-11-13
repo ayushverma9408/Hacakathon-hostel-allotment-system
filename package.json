@@ -20,7 +20,9 @@
     "test:csv": "node --import tsx --test tests/csv.test.ts",
     "test:allocation-engine": "node --import tsx --test tests/allocation-engine.test.ts",
     "test:reports": "node --import tsx --test tests/report-csv.test.ts",
-    "test:security": "node --import tsx --test tests/security.test.ts"
+    "test:security": "node --import tsx --test tests/security.test.ts",
+    "test:e2e:setup": "tsx scripts/seed-e2e-users.ts",
+    "test:e2e": "playwright test"
   },
   "dependencies": {
     "@prisma/adapter-pg": "^7.0.0",
@@ -36,6 +38,7 @@
     "bcryptjs": "^3.0.2"
   },
   "devDependencies": {
+    "@playwright/test": "^1.56.1",
     "@types/node": "20.19.9",
     "@types/react": "19.1.10",
     "@types/react-dom": "19.1.7",
