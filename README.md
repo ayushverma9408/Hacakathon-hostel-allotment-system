@@ -6,16 +6,18 @@ A hostel administration and room-allocation platform being developed in phases. 
 
 - **Legacy prototype:** `hostel_allotment_sys/` — static HTML, CSS and JavaScript, with a stabilized allocation engine.
 - **New application:** `src/` — Next.js App Router, React, strict TypeScript and Tailwind CSS.
-- **Current milestone:** Phase 9 audit oversight.
+- **Current milestone:** Phase 11 end-to-end testing and release preparation.
 - **Database:** PostgreSQL 16 with Prisma ORM 7.
 - **Authentication:** Auth.js credentials sign-in, hashed passwords, protected dashboard and server-side role checks.
 - **Roles:** Admin, Warden and Staff; no public registration.
 - **Management:** role-protected hostel/building/room creation, participant directory, CSV import, search, pagination and audit events.
 - **Allocation:** deterministic FIFO preview, administrator-only commit, persisted assignments, waitlist and run history.
-- **Reports:** session-based hostel/building/room occupancy, allocation and waitlist CSV exports, print-ready reports.\n- **Audit trail:** administrator-only event explorer with actor, action, entity and date filters.
+- **Reports:** session-based hostel/building/room occupancy, allocation and waitlist CSV exports, print-ready reports.
+- **Audit trail:** administrator-only event explorer with actor, action, entity and date filters.
+- **Testing:** domain regression tests plus Playwright browser journeys against a disposable PostgreSQL database in CI.
 - **Not yet enabled:** institution-specific eligibility policy, reallocation/rollback and production deployment.
 
-See [Phase 9 notes](docs/PHASE-9.md), [Phase 8 notes](docs/PHASE-8.md), [Phase 7 notes](docs/PHASE-7.md), [Phase 6 notes](docs/PHASE-6.md), [Phase 5 notes](docs/PHASE-5.md), [Phase 4 database setup](docs/PHASE-4.md), [architecture](docs/ARCHITECTURE.md), and [roadmap](docs/ROADMAP.md).
+See [Phase 11 notes](docs/PHASE-11.md), [Phase 10 notes](docs/PHASE-10.md), [Phase 9 notes](docs/PHASE-9.md), [architecture](docs/ARCHITECTURE.md), and [roadmap](docs/ROADMAP.md).
 
 ## Run locally
 
@@ -23,17 +25,7 @@ Requires Node.js 20.19+ (Node.js 22 recommended), npm and Docker.
 
 ```bash
 cp .env.example .env
-```
-
-Generate a unique Auth.js secret and put it in `.env`:
-
-```bash
 npx auth secret
-```
-
-Start PostgreSQL and install dependencies:
-
-```bash
 docker compose up -d db
 npm install
 npm run db:validate
@@ -48,7 +40,7 @@ Set `BOOTSTRAP_ADMIN_EMAIL`, `BOOTSTRAP_ADMIN_NAME` and a unique `BOOTSTRAP_ADMI
 npm run auth:create-admin
 ```
 
-Remove the bootstrap variables from `.env`, then start the application:
+Remove the bootstrap variables from `.env`, then start the app:
 
 ```bash
 npm run dev
@@ -56,20 +48,33 @@ npm run dev
 
 Open [http://localhost:3000/login](http://localhost:3000/login).
 
-For the role matrix, migration details and API examples, see [Phase 5 notes](docs/PHASE-5.md).
-
 ## Quality checks
 
 ```bash
 npm run db:validate
 npm run db:generate
-npm run lint
-npm run typecheck
-npm run build
 npm run test:allocation
 npm run test:csv
 npm run test:allocation-engine
+npm run test:reports
+npm run test:security
+npm run lint
+npm run typecheck
+npm run build
 ```
+
+## Browser end-to-end tests
+
+Use a disposable local database only. After applying migrations and seeding, create the E2E admin with the synthetic credentials described in [Phase 11](docs/PHASE-11.md), then run:
+
+```bash
+npm run test:e2e:setup
+npm run build
+npx playwright install chromium
+npm run test:e2e
+```
+
+The E2E setup creates synthetic Warden and Staff accounts. Do not use these credentials or seed records in a real environment.
 
 ## Run the legacy prototype
 
@@ -87,10 +92,10 @@ The legacy prototype is browser-only and is not protected by the new app's authe
 
 Never commit `.env`, real passwords, password hashes, production database credentials or real student data. The Docker credentials are local-only. No hosted database has been provisioned.
 
-Production use still requires rate limiting, account recovery, MFA or institution SSO, secure secret management, monitoring and a security review.
+Production use still requires institution-approved allocation policy, rate limiting, account recovery, MFA or institution SSO, secure secret management, monitoring, backup/restore verification and an external security review.
 
 ## Development workflow
 
 - Work on feature branches; keep `main` protected from unfinished work.
-- Complete and verify each phase before moving to the next.
+- Complete and verify each phase before merging.
 - Keep the legacy prototype available until replacement workflows are tested.
