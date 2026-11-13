@@ -1,4 +1,4 @@
-name: Application and allocation checks
+name: Application, database and browser checks
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -13,9 +13,28 @@ on:
 jobs:
   quality:
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: allotment_dev
+          POSTGRES_PASSWORD: allotment_dev
+          POSTGRES_DB: hostel_allotment
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U allotment_dev -d hostel_allotment"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
     env:
       AUTH_SECRET: ci-only-secret-do-not-use-outside-tests
+      AUTH_TRUST_HOST: "true"
       DATABASE_URL: postgresql://allotment_dev:allotment_dev@localhost:5432/hostel_allotment?schema=public
+      BOOTSTRAP_ADMIN_EMAIL: e2e-admin@example.test
+      BOOTSTRAP_ADMIN_NAME: E2E Administrator
+      BOOTSTRAP_ADMIN_PASSWORD: E2E-Test-Password-2026!
+      NEXT_TELEMETRY_DISABLED: 1
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
@@ -43,7 +62,17 @@ jobs:
         run: npm run lint
       - name: Type-check application
         run: npm run typecheck
+      - name: Apply database migrations
+        run: npm run db:migrate:deploy
+      - name: Seed synthetic database records
+        run: npm run db:seed
+      - name: Create disposable administrator account
+        run: npm run auth:create-admin
+      - name: Create disposable Warden and Staff accounts
+        run: npm run test:e2e:setup
       - name: Build production application
         run: npm run build
-        env:
-          NEXT_TELEMETRY_DISABLED: 1
+      - name: Install Chromium for browser tests
+        run: npx playwright install --with-deps chromium
+      - name: Run end-to-end browser journeys
+        run: npm run test:e2e
