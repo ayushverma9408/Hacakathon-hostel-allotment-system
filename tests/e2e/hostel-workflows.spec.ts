@@ -74,7 +74,7 @@ test.describe.serial("AllotmentPro role and operational journeys", () => {
     await page.getByPlaceholder("Building code").fill(buildingCode);
     await page.getByPlaceholder("Building name").fill(buildingName);
     await page.getByRole("button", { name: "Create building" }).click();
-    await expect(page.getByText(buildingName, { exact: true }).first()).toBeVisible();
+    await expect(page.locator("form").nth(2).locator("select").locator("option", { hasText: buildingName })).toHaveCount(1);
 
     const roomSelect = page.locator("form").nth(2).locator("select");
     await roomSelect.selectOption({ label: `${hostelCode} / ${buildingName}` });
