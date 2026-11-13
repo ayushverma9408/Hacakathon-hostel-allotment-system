@@ -1,82 +1,47 @@
 # Current State and Target Architecture
 
 ## Repository state
+The repository contains the original static prototype under `hostel_allotment_sys/` and the new Next.js App Router application under `src/`. The legacy prototype remains outside the new application's authentication boundary and must not be used with real student records.
 
-The repository contains two application tracks:
+## Application stack
+- Next.js App Router, React, TypeScript and Tailwind CSS.
+- PostgreSQL 16 with Prisma ORM 7 and versioned migrations.
+- Auth.js Credentials authentication, bcrypt password hashes and eight-hour JWT sessions.
+- Server-side role authorization for Admin, Warden and Staff.
+- Zod request validation and Node's built-in test runner.
+- Playwright end-to-end tests against a production Next.js build.
 
-1. **Legacy prototype** under `hostel_allotment_sys/`: static HTML/CSS/JavaScript, stabilized during Phase 2.
-2. **New application** at the repository root: Next.js App Router, React, TypeScript and Tailwind CSS.
+## Implemented capabilities
+- Hostel, building and room creation with capacity validation.
+- Participant registration, editing, deactivation, CSV import, search and pagination.
+- Deterministic FIFO allocation preview, administrator-only transactional commit, assignments, waitlist and run history.
+- Session-based occupancy analytics and formula-neutralized CSV exports.
+- Administrator-only audit explorer with bounded pagination and filters.
+- Baseline security headers, credential validation and CI security regression checks.
 
-The new application has a PostgreSQL/Prisma data foundation and Auth.js authentication with role-aware server authorization. The legacy app remains available during migration and is not covered by the new app's authentication boundary.
+## Role boundaries
+- Admin: all implemented operational permissions.
+- Warden: manage hostel and participant data, preview allocations, read reports and export participant-level CSV; cannot commit allocations or view the audit explorer.
+- Staff: read-only hostel, participant, allocation and aggregate report access; cannot export participant-level reports or view audit events.
 
-## Stabilized legacy prototype
+## Phase 11 verification
+- CI provisions a disposable PostgreSQL 16 service and applies the checked-in migrations.
+- Synthetic seed data and temporary E2E role accounts are created only in that ephemeral CI database.
+- Playwright verifies Warden restrictions, Staff read-only behavior and the administrator workflow from sign-in through inventory creation, participant registration, allocation commit, CSV export and audit inspection.
+- E2E tests run against the production Next.js build, not a mocked UI server.
 
-- One canonical allocation engine is used by the UI.
-- Hostel and participant records are validated row by row.
-- Room capacity and duplicate room identifiers are checked.
-- CSV parsing supports quoted commas, escaped quotes, multiline fields and UTF-8 BOM headers.
-- Completed browser runs are saved for the Results page.
-- Excel upload is disabled until a real XLS/XLSX parser is added.
-- Regression tests are in `tests/allocation.test.cjs`.
-
-The legacy app remains browser-only and is not suitable for real student records or production use.
-
-## New application stack
-
-- **Full stack:** Next.js App Router + React + TypeScript.
-- **UI:** Tailwind CSS with a responsive dashboard shell.
-- **Database:** PostgreSQL 16 for local development; production provider not selected.
-- **ORM and migrations:** Prisma ORM 7 with the PostgreSQL driver adapter.
-- **Validation:** Zod schemas at API boundaries.
-- **Authentication:** Auth.js Credentials provider, encrypted JWT sessions (8-hour maximum), bcrypt password hashes and server-side Admin/Warden/Staff permissions.
-- **Testing:** Node's built-in test runner for allocation, CSV, reports and security domain checks, plus Prisma validation/client generation and Next.js quality checks.
-- **Deployment target:** Vercel plus a managed PostgreSQL provider, subject to production configuration.
-
-## Implemented data model
-
-- **User:** email, display name, role, active status and optional bcrypt password hash.
-- **AcademicSession:** unique session code, date range and lifecycle status.
-- **Hostel:** unique code, name, active status and optional institution-defined policy code.
-- **Building:** belongs to a hostel; building codes are unique within a hostel.
-- **Room:** belongs to a building; room codes are unique within a building and capacity must be positive.
-- **Participant:** unique institutional registration number, session, name and optional academic/contact metadata.
-- **AllocationRun:** session, optional creator, algorithm version and lifecycle status.
-- **Allocation:** links run, session, participant and room; uniqueness constraints prevent duplicate participant/session and duplicate bed slots within a run.
-- **WaitlistEntry:** links a run and participant with a stable queue position and reason; waitlisted people do not receive a fictitious room/bed assignment.
-- **AuditEvent:** optional actor, action, entity reference and JSON metadata.
-
-## Reporting
-
-- Aggregate reporting endpoints require `reports:read`; participant-level CSV exports require the stricter `reports:export` permission (Admin and Warden only).
-- Occupancy is derived from the latest completed allocation run for the selected session and active room inventory.
-- Allocation and waitlist CSV exports are generated server-side, quote every field, include a UTF-8 BOM and neutralize spreadsheet formula prefixes.
-- Reports do not write allocation records; print output uses browser print styles. XLSX generation remains future work.
-
-## Audit oversight
-
-- The `audit:read` permission is restricted to Admin.
-- The audit API supports bounded pagination and filters by action, entity type, actor and timestamp range.
-- Events are sorted newest-first and returned with actor attribution; events remain visible if an actor account is later deleted.
-- Audit metadata is displayed only in the administrator-only explorer. Management writes create audit events in the same database transaction as the corresponding change where implemented.
-- Audit records are append-only through the current application UI; retention, archival and tamper-evident storage policies are not yet implemented.
-
-## Phase 10 security baseline
-
-- Permission definitions are centralized in `src/lib/permissions.ts`; the server-side authorization helper still re-reads the active account and role from PostgreSQL for each protected operation.
-- Credential validation enforces a 14-character minimum and a 72-byte UTF-8 maximum to match bcrypt's effective input limit.
-- Next.js adds frame denial, MIME sniffing protection, referrer and browser-capability policies, same-origin opener isolation and production-only HSTS.
-- The application does not implement distributed rate limiting. Configure login and sensitive write limits at the edge/WAF layer before production.
-- No production environment, managed database, backup restore, external penetration test or compliance certification has been completed.
-
-The initial migration adds foreign keys, indexes, unique constraints and basic CHECK constraints. The Phase 7 planner validates bed numbers against room capacity and commits assignments transactionally. A database-level bed-capacity guard and institution-specific policy checks remain future work.
+## Known limitations
+- The legacy prototype is not protected by the new app's authentication boundary.
+- The FIFO allocation order is a technical baseline, not institution-approved policy; eligibility and priority rules require formal approval.
+- Reallocation, rollback, waitlist promotion, XLSX exports and advanced report filters remain future work.
+- Distributed rate limiting, MFA/SSO, CSP nonce support, external penetration testing, accessibility certification, load testing and production backup/restore verification are not implemented.
+- No production hosting or managed database has been provisioned.
 
 ## Security and migration principles
-
 - Never commit secrets, production credentials or real student records.
-- Seed data is synthetic and uses reserved `.test` email addresses.
+- Seed data and E2E accounts use synthetic reserved `.test` email addresses.
 - Validate input on the server; browser validation is only a usability aid.
-- Enforce authorization on every protected server action/API using the centralized permission matrix; re-read current roles and account status from PostgreSQL.
-- Prevent over-capacity and duplicate assignments with validated planning, database uniqueness constraints and serializable transactions.
-- Do not infer eligibility rules from personal characteristics; institution-approved allocation policy must be explicit.
-- Keep an audit trail for administrative changes.
+- Enforce authorization on every protected server action/API and re-read current roles and account status from PostgreSQL.
+- Keep allocation constraints transactional and audit administrative mutations.
+- Do not infer eligibility from personal characteristics; institution-approved allocation policy must be explicit.
 - Migrate functionality incrementally; do not remove the legacy prototype until replacement workflows are tested.
