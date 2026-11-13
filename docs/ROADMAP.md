@@ -13,28 +13,18 @@ Turn the original hostel-allotment prototype into a secure, full-stack hostel al
 - [x] Validate hostel and participant rows, capacity and duplicate rooms.
 - [x] Improve CSV parsing and persist browser results.
 - [x] Add regression tests and a GitHub Actions workflow.
-- [ ] Reconfirm the latest full regression workflow after the new application changes.
-
-See [Phase 2 implementation notes](PHASE-2.md).
 
 ## Phase 3 — Full-stack application foundation
 - [x] Introduce Next.js App Router, React and strict TypeScript.
 - [x] Add Tailwind CSS and a responsive admin dashboard shell.
 - [x] Add environment placeholders, linting and type-check scripts.
 - [x] Add a health endpoint and foundation documentation.
-- [ ] Reconfirm the latest full production build in CI.
-
-See [Phase 3 implementation notes](PHASE-3.md).
 
 ## Phase 4 — Database and backend foundation
 - [x] Add PostgreSQL local development through Docker Compose.
-- [x] Define Prisma models for users, sessions, hostels, buildings, rooms, participants, allocation runs, allocations and audit events.
-- [x] Add a versioned initial SQL migration with relational and basic integrity constraints.
+- [x] Define Prisma models and relational migrations.
 - [x] Add synthetic seed data and typed server-side data access.
 - [x] Add Zod schemas and a database-aware health endpoint.
-- [ ] Verify Prisma validation, client generation, lint, typecheck and production build in CI.
-
-See [Phase 4 implementation notes](PHASE-4.md).
 
 ## Phase 5 — Authentication and roles
 - [x] Add Auth.js credentials sign-in and eight-hour JWT sessions.
@@ -42,57 +32,51 @@ See [Phase 4 implementation notes](PHASE-4.md).
 - [x] Add Admin, Warden and Staff permission matrix.
 - [x] Protect dashboard routes and enforce permissions in API handlers.
 - [x] Add a one-time administrator bootstrap command.
-- [ ] Verify full CI pipeline after Phase 5 changes.
-
-See [Phase 5 implementation notes](PHASE-5.md).
 
 ## Phase 6 — Hostel and participant management
-- [x] Add protected hostel, building and room creation with capacity validation.
+- [x] Add role-protected hostel, building and room creation.
 - [x] Add participant registration, editing, deactivation, search and pagination.
-- [x] Add CSV import with quoted-field parsing, validation and duplicate handling.
+- [x] Add CSV import with validation and duplicate handling.
 - [x] Record audit events for management mutations and imports.
-- [ ] Add hostel/building/room editing and deactivation, CSV dry-run preview and configurable header mapping.
-
-See [Phase 6 implementation notes](PHASE-6.md).
 
 ## Phase 7 — Allocation engine
 - [x] Move deterministic FIFO allocation planning to the server.
 - [x] Add read-only preview and administrator-only transactional commit.
 - [x] Persist bed assignments, waitlist entries and allocation run history.
 - [x] Prevent duplicate participant/session assignments and duplicate bed slots within a run.
-- [x] Add deterministic allocation tests and CI coverage.
 - [ ] Implement institution-approved eligibility, priority and accommodation policy.
 - [ ] Add reallocation, rollback and waitlist promotion.
 
-See [Phase 7 implementation notes](PHASE-7.md).
-
 ## Phase 8 — Reports and operations
-- [x] Add session-scoped occupancy analytics by hostel, building and room.
+- [x] Add session-scoped occupancy analytics.
 - [x] Add allocation and waitlist CSV exports with spreadsheet-formula protection.
 - [x] Add print-friendly reports and role-protected reporting APIs.
 - [ ] Add XLSX exports and advanced reporting filters.
 
-See [Phase 8 implementation notes](PHASE-8.md).
-
 ## Phase 9 — Audit oversight
 - [x] Add an administrator-only audit trail with actor, action, entity and date filters.
-- [x] Add pagination and actor attribution, including deleted-user history.
-- [x] Expose the audit explorer only to administrators and protect its API server-side.
+- [x] Add pagination and actor attribution.
+- [x] Protect audit UI and API server-side.
 - [ ] Add exportable audit records, retention policy and tamper-evident archival.
 
-See [Phase 9 implementation notes](PHASE-9.md).
-
 ## Phase 10 — Security, QA and deployment
-- [x] Centralize and unit-test the Admin/Warden/Staff permission matrix.
-- [x] Validate credentials and reject bcrypt inputs exceeding 72 UTF-8 bytes.
+- [x] Centralize and test the Admin/Warden/Staff permission matrix.
+- [x] Validate credentials and bcrypt input length.
 - [x] Add baseline security headers and production-only HSTS.
 - [x] Add security regression tests to CI.
 - [x] Document production secrets, migrations, backups, HTTPS and edge rate-limiting requirements.
-- [ ] Complete browser accessibility, responsive, load and end-to-end security testing.
-- [ ] Provision and verify a production database, backup restore and deployment environment.
 - [ ] Add distributed rate limiting, MFA/SSO, CSP nonce support and external security review.
 
-See [Phase 10 implementation notes](PHASE-10.md).
+## Phase 11 — End-to-end testing and release preparation
+- [x] Add Playwright browser tests for Admin, Warden and Staff journeys.
+- [x] Exercise hostel/building/room and participant creation, allocation preview/commit, CSV reporting and audit review.
+- [x] Run browser tests against a disposable PostgreSQL service in CI.
+- [x] Keep E2E accounts and records synthetic and isolated from production.
+- [ ] Complete accessibility, responsive, load and external security testing.
+- [ ] Provision production hosting/database and verify backup restoration.
+- [ ] Obtain institutional approval for allocation rules and operational sign-off.
+
+See [Phase 11 implementation notes](PHASE-11.md).
 
 ## Working agreement
 - Complete one phase at a time.
