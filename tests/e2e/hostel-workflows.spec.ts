@@ -51,42 +51,51 @@ test.describe.serial("AllotmentPro role and operational journeys", () => {
   });
 
   test("Administrator completes hostel, participant, allocation, report and audit workflow", async ({ page }) => {
+    const suffix = Date.now().toString().slice(-6);
+    const hostelCode = `E2E-${suffix}`;
+    const hostelName = `E2E Hostel ${suffix}`;
+    const buildingCode = `BLK-${suffix}`;
+    const buildingName = `E2E Block ${suffix}`;
+    const roomCode = `R-${suffix}`;
+    const registrationNo = `E2E-${suffix}`;
+    const participantName = `E2E Participant ${suffix}`;
+
     await signIn(page, "e2e-admin@example.test");
     await expect(page.getByRole("heading", { name: "Hostel operations" })).toBeVisible();
 
     await page.goto("/admin/hostels");
-    await page.getByPlaceholder("Hostel code").fill("E2E-H1");
-    await page.getByPlaceholder("Hostel name").fill("E2E Hostel");
+    await page.getByPlaceholder("Hostel code").fill(hostelCode);
+    await page.getByPlaceholder("Hostel name").fill(hostelName);
     await page.getByRole("button", { name: "Create hostel" }).click();
-    await expect(page.getByText("E2E Hostel", { exact: true }).first()).toBeVisible();
+    await expect(page.getByRole("heading", { name: hostelName })).toBeVisible();
 
     const hostelSelect = page.locator("form").nth(1).locator("select");
-    await hostelSelect.selectOption({ label: "E2E Hostel" });
-    await page.getByPlaceholder("Building code").fill("E2E-B1");
-    await page.getByPlaceholder("Building name").fill("E2E Block");
+    await hostelSelect.selectOption({ label: hostelName });
+    await page.getByPlaceholder("Building code").fill(buildingCode);
+    await page.getByPlaceholder("Building name").fill(buildingName);
     await page.getByRole("button", { name: "Create building" }).click();
-    await expect(page.getByText("E2E Block", { exact: true }).first()).toBeVisible();
+    await expect(page.getByText(buildingName, { exact: true }).first()).toBeVisible();
 
     const roomSelect = page.locator("form").nth(2).locator("select");
-    await roomSelect.selectOption({ label: "E2E-H1 / E2E Block" });
-    await page.getByPlaceholder("Room code").fill("E2E-101");
+    await roomSelect.selectOption({ label: `${hostelCode} / ${buildingName}` });
+    await page.getByPlaceholder("Room code").fill(roomCode);
     await page.locator("form").nth(2).locator('input[type="number"]').nth(1).fill("1");
     await page.getByRole("button", { name: "Create room" }).click();
-    await expect(page.getByText(/E2E-101 · 1 beds/)).toBeVisible();
+    await expect(page.getByText(new RegExp(`${roomCode} · 1 beds`))).toBeVisible();
 
     await page.goto("/admin/participants");
-    await page.getByPlaceholder("Registration number").fill("E2E-REG-001");
-    await page.getByPlaceholder("Full name").fill("E2E Participant");
-    await page.getByPlaceholder("Email (optional)").fill("e2e-participant@example.test");
+    await page.getByPlaceholder("Registration number").fill(registrationNo);
+    await page.getByPlaceholder("Full name").fill(participantName);
+    await page.getByPlaceholder("Email (optional)").fill(`participant-${suffix}@example.test`);
     await page.getByPlaceholder("Department").fill("Computer Science");
     await page.getByRole("button", { name: "Register participant" }).click();
-    await expect(page.getByText("E2E-REG-001")).toBeVisible();
-    await expect(page.getByText("E2E Participant")).toBeVisible();
+    await expect(page.getByText(registrationNo)).toBeVisible();
+    await expect(page.getByText(participantName)).toBeVisible();
 
     await page.goto("/admin/allocations");
     await page.getByRole("button", { name: "Generate preview" }).click();
     await expect(page.getByRole("heading", { name: "Preview results" })).toBeVisible();
-    await expect(page.getByText("E2E-REG-001")).toBeVisible();
+    await expect(page.getByText(registrationNo)).toBeVisible();
 
     page.on("dialog", async (dialog) => dialog.accept());
     await page.getByRole("button", { name: "Commit allocation" }).click();
@@ -96,13 +105,13 @@ test.describe.serial("AllotmentPro role and operational journeys", () => {
     await page.goto("/admin/reports");
     await expect(page.getByRole("heading", { name: "Reports & analytics" })).toBeVisible();
     await expect(page.getByRole("heading", { name: "Hostel occupancy" })).toBeVisible();
-    await expect(page.getByText("E2E Hostel", { exact: true })).toBeVisible();
+    await expect(page.getByText(hostelName, { exact: true })).toBeVisible();
     const csvHref = await page.getByRole("link", { name: "Download allocation CSV" }).getAttribute("href");
     expect(csvHref).toBeTruthy();
     const csvResponse = await page.request.get(csvHref!);
     expect(csvResponse.ok()).toBeTruthy();
     expect(csvResponse.headers()["content-type"]).toContain("text/csv");
-    expect(await csvResponse.text()).toContain("E2E-REG-001");
+    expect(await csvResponse.text()).toContain(registrationNo);
 
     await page.goto("/admin/audit");
     await expect(page.getByRole("heading", { name: "Audit trail" })).toBeVisible();
