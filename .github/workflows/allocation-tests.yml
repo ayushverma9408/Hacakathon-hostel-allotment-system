@@ -18,9 +18,9 @@ jobs:
       DATABASE_URL: postgresql://allotment_dev:allotment_dev@localhost:5432/hostel_allotment?schema=public
     steps:
       - name: Check out repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
       - name: Set up Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7
         with:
           node-version: 22
       - name: Install dependencies
