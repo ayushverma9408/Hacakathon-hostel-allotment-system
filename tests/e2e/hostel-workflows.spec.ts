@@ -67,7 +67,7 @@ test.describe.serial("AllotmentPro role and operational journeys", () => {
     await page.getByPlaceholder("Hostel code").fill(hostelCode);
     await page.getByPlaceholder("Hostel name").fill(hostelName);
     await page.getByRole("button", { name: "Create hostel" }).click();
-    await expect(page.getByRole("heading", { name: hostelName })).toBeVisible();
+    await expect(page.getByRole("heading", { name: new RegExp(hostelName) })).toBeVisible();
 
     const hostelSelect = page.locator("form").nth(1).locator("select");
     await hostelSelect.selectOption({ label: hostelName });
@@ -105,7 +105,7 @@ test.describe.serial("AllotmentPro role and operational journeys", () => {
     await page.goto("/admin/reports");
     await expect(page.getByRole("heading", { name: "Reports & analytics" })).toBeVisible();
     await expect(page.getByRole("heading", { name: "Hostel occupancy" })).toBeVisible();
-    await expect(page.getByText(hostelName, { exact: true })).toBeVisible();
+    await expect(page.getByRole("heading", { name: new RegExp(hostelName) })).toBeVisible();
     const csvHref = await page.getByRole("link", { name: "Download allocation CSV" }).getAttribute("href");
     expect(csvHref).toBeTruthy();
     const csvResponse = await page.request.get(csvHref!);
